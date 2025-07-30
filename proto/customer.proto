@@ -1,0 +1,202 @@
+syntax = "proto3";
+
+package customer;
+
+service CustomerService {
+  rpc CreateCustomer(CreateCustomerRequest) returns (CustomerResponse);
+  rpc GetCustomer(GetCustomerRequest) returns (CustomerResponse);
+  rpc UpdateCustomer(UpdateCustomerRequest) returns (CustomerResponse);
+  rpc DeleteCustomer(DeleteCustomerRequest) returns (DeleteCustomerResponse);
+  rpc ListCustomers(ListCustomersRequest) returns (ListCustomersResponse);
+}
+
+message CreateCustomerRequest {
+  string firstName = 1;
+  string middleName = 2;
+  string lastName = 3;
+  string dateOfBirth = 4;
+  string gender = 5;
+  string nationality = 6;
+  string maritalStatus = 7;
+  string email = 8;
+  string phoneNumber = 9;
+  string alternatePhoneNumber = 10;
+  Address currentAddress = 11;
+  Address permanentAddress = 12;
+  repeated IdentificationDocument identificationDocuments = 13;
+  EmploymentDetails employmentDetails = 14;
+  repeated BankingHistory bankingHistory = 15;
+  int32 creditScore = 16;
+  repeated ExistingLoan existingLoans = 17;
+  EmergencyContact emergencyContact = 18;
+  string kycStatus = 19;
+  string riskProfile = 20;
+  string accountStatus = 21;
+  bool fatcaStatus = 22;
+  bool pepStatus = 23;
+  string amlScreeningStatus = 24;
+  CommunicationPreferences communicationPreferences = 25;
+  string customerNotes = 26;
+  string internalRemarks = 27;
+  string createdBy = 28;
+}
+
+message UpdateCustomerRequest {
+  string customerId = 1;
+  string firstName = 2;
+  string middleName = 3;
+  string lastName = 4;
+  string dateOfBirth = 5;
+  string gender = 6;
+  string nationality = 7;
+  string maritalStatus = 8;
+  string email = 9;
+  string phoneNumber = 10;
+  string alternatePhoneNumber = 11;
+  Address currentAddress = 12;
+  Address permanentAddress = 13;
+  repeated IdentificationDocument identificationDocuments = 14;
+  EmploymentDetails employmentDetails = 15;
+  repeated BankingHistory bankingHistory = 16;
+  int32 creditScore = 17;
+  repeated ExistingLoan existingLoans = 18;
+  EmergencyContact emergencyContact = 19;
+  string kycStatus = 20;
+  string riskProfile = 21;
+  string accountStatus = 22;
+  bool fatcaStatus = 23;
+  bool pepStatus = 24;
+  string amlScreeningStatus = 25;
+  CommunicationPreferences communicationPreferences = 26;
+  string customerNotes = 27;
+  string internalRemarks = 28;
+  string lastModifiedBy = 29;
+}
+
+message GetCustomerRequest {
+  string customerId = 1;
+}
+
+message DeleteCustomerRequest {
+  string customerId = 1;
+}
+
+message ListCustomersRequest {
+  int32 page = 1;
+  int32 limit = 2;
+  string search = 3;
+}
+
+message CustomerResponse {
+  bool success = 1;
+  Customer customer = 2;
+  string error = 3;
+}
+
+message DeleteCustomerResponse {
+  bool success = 1;
+  string message = 2;
+  string error = 3;
+}
+
+message ListCustomersResponse {
+  bool success = 1;
+  repeated Customer customers = 2;
+  int32 total = 3;
+  int32 page = 4;
+  int32 limit = 5;
+  string error = 6;
+}
+
+message Customer {
+  string customerId = 1;
+  string firstName = 2;
+  string middleName = 3;
+  string lastName = 4;
+  string dateOfBirth = 5;
+  string gender = 6;
+  string nationality = 7;
+  string maritalStatus = 8;
+  string email = 9;
+  string phoneNumber = 10;
+  string alternatePhoneNumber = 11;
+  Address currentAddress = 12;
+  Address permanentAddress = 13;
+  repeated IdentificationDocument identificationDocuments = 14;
+  EmploymentDetails employmentDetails = 15;
+  repeated BankingHistory bankingHistory = 16;
+  int32 creditScore = 17;
+  repeated ExistingLoan existingLoans = 18;
+  EmergencyContact emergencyContact = 19;
+  string kycStatus = 20;
+  string riskProfile = 21;
+  string accountStatus = 22;
+  bool fatcaStatus = 23;
+  bool pepStatus = 24;
+  string amlScreeningStatus = 25;
+  CommunicationPreferences communicationPreferences = 26;
+  string customerNotes = 27;
+  string internalRemarks = 28;
+  string createdAt = 29;
+  string updatedAt = 30;
+  string createdBy = 31;
+  string lastModifiedBy = 32;
+}
+
+message Address {
+  string street = 1;
+  string city = 2;
+  string state = 3;
+  string postalCode = 4;
+  string country = 5;
+  string addressType = 6;
+  string residenceSince = 7;
+}
+
+message IdentificationDocument {
+  string documentType = 1;
+  string documentNumber = 2;
+  string issuingAuthority = 3;
+  string issueDate = 4;
+  string expiryDate = 5;
+  string documentImageUrl = 6;
+}
+
+message EmploymentDetails {
+  string employmentStatus = 1;
+  string employerName = 2;
+  string designation = 3;
+  int32 workExperience = 4;
+  double monthlyIncome = 5;
+  double annualIncome = 6;
+  string employerAddress = 7;
+  string employerPhoneNumber = 8;
+}
+
+message BankingHistory {
+  string bankName = 1;
+  string accountNumber = 2;
+  string accountType = 3;
+  int32 relationshipDuration = 4;
+}
+
+message ExistingLoan {
+  string loanType = 1;
+  string lender = 2;
+  double outstandingAmount = 3;
+  double monthlyEMI = 4;
+}
+
+message EmergencyContact {
+  string name = 1;
+  string relationship = 2;
+  string phoneNumber = 3;
+  string address = 4;
+}
+
+message CommunicationPreferences {
+  bool emailNotifications = 1;
+  bool smsNotifications = 2;
+  bool marketingConsent = 3;
+  string preferredLanguage = 4;
+}
