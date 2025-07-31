@@ -7,6 +7,7 @@ import { LoginDto, LogoutDto, LoginResponseDto, LogoutResponseDto } from './dto/
 interface AuthService {
   Login(data: LoginDto): any;
   Logout(data: LogoutDto): any;
+  ValidateToken(data: { token: string }): any;
 }
 
 @ApiTags('Authentication')

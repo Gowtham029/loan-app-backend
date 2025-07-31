@@ -4,6 +4,8 @@ import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBearerAuth }
 import { firstValueFrom } from 'rxjs';
 import { CreateUserDto, UpdateUserDto, ListUsersDto, CreateUserResponseDto, UserResponseDto, ListUsersResponseDto } from './dto/user.dto';
 import { AuthGuard } from './guards/auth.guard';
+import { RolesGuard } from './guards/roles.guard';
+import { Roles } from './decorators/roles.decorator';
 
 interface UserService {
   CreateUser(data: CreateUserDto): any;
@@ -14,7 +16,9 @@ interface UserService {
 }
 
 @ApiTags('Users')
+@ApiBearerAuth()
 @Controller('users')
+@UseGuards(AuthGuard, RolesGuard)
 export class UserController implements OnModuleInit {
   private userService: UserService;
 
@@ -31,10 +35,12 @@ export class UserController implements OnModuleInit {
   }
 
   @Post()
+  @Roles('admin')
   @ApiOperation({ summary: 'Create a new user' })
   @ApiResponse({ status: 201, description: 'User created successfully', type: CreateUserResponseDto })
   @ApiResponse({ status: 400, description: 'Validation error or user already exists' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin role required' })
   async createUser(@Body() createUserDto: CreateUserDto) {
     try {
       const result = await firstValueFrom(this.userService.CreateUser(createUserDto)) as any;
@@ -82,12 +88,14 @@ export class UserController implements OnModuleInit {
   }
 
   @Put(':id')
+  @Roles('admin', 'manager')
   @ApiOperation({ summary: 'Update user by ID' })
   @ApiParam({ name: 'id', description: 'User ID' })
   @ApiResponse({ status: 200, description: 'User updated successfully', type: UserResponseDto })
   @ApiResponse({ status: 400, description: 'Validation error' })
   @ApiResponse({ status: 404, description: 'User not found' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin or Manager role required' })
   async updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     try {
       const result = await firstValueFrom(this.userService.UpdateUser({ ...updateUserDto, userId: id })) as any;
@@ -109,11 +117,13 @@ export class UserController implements OnModuleInit {
   }
 
   @Delete(':id')
+  @Roles('admin')
   @ApiOperation({ summary: 'Delete user by ID' })
   @ApiParam({ name: 'id', description: 'User ID' })
   @ApiResponse({ status: 200, description: 'User deleted successfully' })
   @ApiResponse({ status: 404, description: 'User not found' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin role required' })
   async deleteUser(@Param('id') id: string) {
     try {
       const result = await firstValueFrom(this.userService.DeleteUser({ userId: id })) as any;
@@ -149,8 +159,15 @@ export class UserController implements OnModuleInit {
         throw new HttpException('User service unavailable', HttpStatus.SERVICE_UNAVAILABLE);
       }
       
-      console.log('Calling user service ListUsers...');
-      const result = await firstValueFrom(this.userService.ListUsers(query)) as any;
+      // Transform query parameters to proper types
+      const transformedQuery = {
+        ...query,
+        page: query.page ? parseInt(query.page as any, 10) : 1,
+        limit: query.limit ? parseInt(query.limit as any, 10) : 10
+      };
+      
+      console.log('Calling user service ListUsers with transformed query:', transformedQuery);
+      const result = await firstValueFrom(this.userService.ListUsers(transformedQuery)) as any;
       console.log('User service response:', result);
       
       if (!result.success) {

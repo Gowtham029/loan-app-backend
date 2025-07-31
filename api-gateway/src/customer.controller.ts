@@ -1,8 +1,10 @@
 import { Controller, Get, Post, Patch, Delete, Body, Param, Query, Inject, OnModuleInit, HttpStatus, HttpException, Logger, UseGuards } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
 import { CreateCustomerDto, UpdateCustomerDto, CustomerResponseDto, ListCustomersQueryDto } from './dto/customer.dto';
 import { AuthGuard } from './guards/auth.guard';
+import { RolesGuard } from './guards/roles.guard';
+import { Roles } from './decorators/roles.decorator';
 
 interface CustomerService {
   createCustomer(data: any): any;
@@ -13,7 +15,9 @@ interface CustomerService {
 }
 
 @ApiTags('Customers')
+@ApiBearerAuth()
 @Controller('customers')
+@UseGuards(AuthGuard, RolesGuard)
 export class CustomerController implements OnModuleInit {
   private readonly logger = new Logger(CustomerController.name);
   private customerService: CustomerService;
@@ -25,10 +29,12 @@ export class CustomerController implements OnModuleInit {
   }
 
   @Post()
+  @Roles('admin', 'manager')
   @ApiOperation({ summary: 'Create a new customer' })
   @ApiResponse({ status: 201, description: 'Customer created successfully', type: CustomerResponseDto })
   @ApiResponse({ status: 400, description: 'Validation error' })
   @ApiResponse({ status: 409, description: 'Customer already exists' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin or Manager role required' })
   async createCustomer(@Body() createCustomerDto: CreateCustomerDto) {
     // Set default createdBy if not provided
     if (!createCustomerDto.createdBy) {
@@ -75,11 +81,13 @@ export class CustomerController implements OnModuleInit {
   }
 
   @Patch(':id')
+  @Roles('admin', 'manager')
   @ApiOperation({ summary: 'Update customer' })
   @ApiParam({ name: 'id', description: 'Customer ID' })
   @ApiResponse({ status: 200, description: 'Customer updated', type: CustomerResponseDto })
   @ApiResponse({ status: 400, description: 'Validation error' })
   @ApiResponse({ status: 404, description: 'Customer not found' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin or Manager role required' })
   async updateCustomer(@Param('id') id: string, @Body() updateCustomerDto: UpdateCustomerDto) {
     // Set default lastModifiedBy if not provided
     if (!updateCustomerDto.lastModifiedBy) {
@@ -105,10 +113,12 @@ export class CustomerController implements OnModuleInit {
   }
 
   @Delete(':id')
+  @Roles('admin')
   @ApiOperation({ summary: 'Delete customer' })
   @ApiParam({ name: 'id', description: 'Customer ID' })
   @ApiResponse({ status: 200, description: 'Customer deleted' })
   @ApiResponse({ status: 404, description: 'Customer not found' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin role required' })
   async deleteCustomer(@Param('id') id: string) {
     const result = await this.customerService.deleteCustomer({ customerId: id });
     
