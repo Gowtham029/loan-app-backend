@@ -1,26 +1,27 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs';
 import { LoginDto, LogoutDto, ValidateTokenDto, RegisterDto } from './dto/auth.dto';
 import { ILoginResponse, IValidateResponse, ILogoutResponse, IAuthUser } from './interfaces/auth.interface';
 import { JwtHelper } from './helpers/jwt.helper';
 import { PasswordHelper } from './helpers/password.helper';
 
 interface UserService {
-  GetUserByUsername(data: { username: string }): Promise<any>;
-  GetUserByEmail(data: { email: string }): Promise<any>;
-  CreateUser(data: any): Promise<any>;
-  UpdateLastLogin(data: { userId: string }): Promise<any>;
+  GetUser(data: { userId: string }): any;
+  GetUserByUsername(data: { username: string }): any;
 }
 
 @Injectable()
-export class AuthService {
+export class AuthService implements OnModuleInit {
   private userService: UserService;
   private blacklistedTokens = new Set<string>(); // In production, use Redis
 
   constructor(@Inject('USER_PACKAGE') private client: ClientGrpc) {}
 
   onModuleInit() {
+    console.log('Auth service initializing user service client...');
     this.userService = this.client.getService<UserService>('UserService');
+    console.log('User service client initialized in auth service');
   }
 
   async login(loginData: LoginDto): Promise<ILoginResponse> {
@@ -32,13 +33,16 @@ export class AuthService {
       }
 
       // Get user from user service
-      const userResponse = await this.userService.GetUserByUsername({ username });
-      
+      console.log('Auth service calling user service GetUserByUsername:', { username });
+      const userResponse = await firstValueFrom(this.userService.GetUserByUsername({ username })) as any;
+      console.log('User service response:', userResponse);
       if (!userResponse.success || !userResponse.user) {
         return { success: false, error: 'Invalid credentials' };
       }
 
       const user = userResponse.user;
+
+
 
       // Check if user is active
       if (user.status !== 'active') {
@@ -53,8 +57,7 @@ export class AuthService {
         return { success: false, error: 'Invalid credentials' };
       }
 
-      // Update last login
-      await this.userService.UpdateLastLogin({ userId: user.id });
+      // Skip last login update for now
 
       // Generate JWT token
       const authUser: IAuthUser = {

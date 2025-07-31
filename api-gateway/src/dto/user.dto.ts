@@ -94,13 +94,13 @@ export class ListUsersDto {
   @ApiProperty({ example: 1, required: false, description: 'Page number for pagination' })
   @IsOptional()
   @IsInt()
-  @Min(1)
+  // @Min(1)
   page?: number = 1;
 
   @ApiProperty({ example: 10, required: false, description: 'Number of items per page' })
   @IsOptional()
   @IsInt()
-  @Min(1)
+  // @Min(1)
   limit?: number = 10;
 
   @ApiProperty({ example: 'john', required: false, description: 'Search term for filtering users' })

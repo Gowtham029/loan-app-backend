@@ -1,28 +1,33 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query, HttpException, HttpStatus, Inject, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Query, HttpException, HttpStatus, Inject, UseGuards, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
+import { firstValueFrom } from 'rxjs';
 import { CreateUserDto, UpdateUserDto, ListUsersDto, CreateUserResponseDto, UserResponseDto, ListUsersResponseDto } from './dto/user.dto';
 import { AuthGuard } from './guards/auth.guard';
 
 interface UserService {
-  CreateUser(data: CreateUserDto): Promise<any>;
-  GetUser(data: { userId: string }): Promise<any>;
-  UpdateUser(data: UpdateUserDto & { userId: string }): Promise<any>;
-  DeleteUser(data: { userId: string }): Promise<any>;
-  ListUsers(data: ListUsersDto): Promise<any>;
+  CreateUser(data: CreateUserDto): any;
+  GetUser(data: { userId: string }): any;
+  UpdateUser(data: UpdateUserDto & { userId: string }): any;
+  DeleteUser(data: { userId: string }): any;
+  ListUsers(data: ListUsersDto): any;
 }
 
 @ApiTags('Users')
-@ApiBearerAuth()
 @Controller('users')
-@UseGuards(AuthGuard)
-export class UserController {
+export class UserController implements OnModuleInit {
   private userService: UserService;
 
   constructor(@Inject('USER_PACKAGE') private client: ClientGrpc) {}
 
   onModuleInit() {
-    this.userService = this.client.getService<UserService>('UserService');
+    console.log('Initializing User Controller...');
+    try {
+      this.userService = this.client.getService<UserService>('UserService');
+      console.log('User service client initialized successfully');
+    } catch (error) {
+      console.error('Failed to initialize user service client:', error);
+    }
   }
 
   @Post()
@@ -32,7 +37,7 @@ export class UserController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async createUser(@Body() createUserDto: CreateUserDto) {
     try {
-      const result = await this.userService.CreateUser(createUserDto);
+      const result = await firstValueFrom(this.userService.CreateUser(createUserDto)) as any;
       
       if (!result.success) {
         throw new HttpException(result.error, HttpStatus.BAD_REQUEST);
@@ -58,7 +63,7 @@ export class UserController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async getUser(@Param('id') id: string) {
     try {
-      const result = await this.userService.GetUser({ userId: id });
+      const result = await firstValueFrom(this.userService.GetUser({ userId: id })) as any;
       
       if (!result.success) {
         throw new HttpException(result.error, HttpStatus.NOT_FOUND);
@@ -85,7 +90,7 @@ export class UserController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     try {
-      const result = await this.userService.UpdateUser({ ...updateUserDto, userId: id });
+      const result = await firstValueFrom(this.userService.UpdateUser({ ...updateUserDto, userId: id })) as any;
       
       if (!result.success) {
         throw new HttpException(result.error, HttpStatus.BAD_REQUEST);
@@ -111,7 +116,7 @@ export class UserController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async deleteUser(@Param('id') id: string) {
     try {
-      const result = await this.userService.DeleteUser({ userId: id });
+      const result = await firstValueFrom(this.userService.DeleteUser({ userId: id })) as any;
       
       if (!result.success) {
         throw new HttpException(result.error, HttpStatus.NOT_FOUND);
@@ -137,8 +142,16 @@ export class UserController {
   @ApiResponse({ status: 200, description: 'Users retrieved successfully', type: ListUsersResponseDto })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async listUsers(@Query() query: ListUsersDto) {
+    console.log('List users request received:', query);
     try {
-      const result = await this.userService.ListUsers(query);
+      if (!this.userService) {
+        console.error('User service not initialized');
+        throw new HttpException('User service unavailable', HttpStatus.SERVICE_UNAVAILABLE);
+      }
+      
+      console.log('Calling user service ListUsers...');
+      const result = await firstValueFrom(this.userService.ListUsers(query)) as any;
+      console.log('User service response:', result);
       
       if (!result.success) {
         throw new HttpException(result.error, HttpStatus.BAD_REQUEST);

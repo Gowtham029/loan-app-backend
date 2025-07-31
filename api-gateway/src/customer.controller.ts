@@ -14,7 +14,6 @@ interface CustomerService {
 
 @ApiTags('Customers')
 @Controller('customers')
-@UseGuards(AuthGuard)
 export class CustomerController implements OnModuleInit {
   private readonly logger = new Logger(CustomerController.name);
   private customerService: CustomerService;

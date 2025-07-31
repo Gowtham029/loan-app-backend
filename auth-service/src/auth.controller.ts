@@ -11,10 +11,12 @@ export class AuthController {
 
   @GrpcMethod('AuthService', 'Login')
   async login(data: LoginDto) {
+    console.log('Auth service received login request:', data);
     this.logger.log(`Login attempt: ${data.username}`);
     try {
       const result = await this.authService.login(data);
       
+      console.log('Auth service login result:', result);
       if (!result.success) {
         this.logger.warn(`Login failed for user: ${data.username} - ${result.error}`);
       } else {

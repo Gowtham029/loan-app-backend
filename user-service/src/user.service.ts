@@ -90,4 +90,17 @@ export class UserService {
       limit
     };
   }
+
+  async findByUsername(username: string): Promise<{ user?: IUser; error?: string }> {
+    if (!username) {
+      return { error: 'Username is required' };
+    }
+
+    const user = await this.userRepository.findByUsername(username);
+    if (!user) {
+      return { error: 'User not found' };
+    }
+
+    return { user: ResponseHelper.transformUser(user) };
+  }
 }

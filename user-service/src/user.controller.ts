@@ -137,4 +137,24 @@ export class UserController {
       error: null
     };
   }
+
+  @GrpcMethod('UserService', 'GetUserByUsername')
+  async getUserByUsername(data: { username: string }) {
+    console.log("INSIDE THE GetUserByUsername", data);
+    const result = await this.userService.findByUsername(data.username);
+    
+    if (result.error) {
+      return {
+        success: false,
+        user: null,
+        error: result.error
+      };
+    }
+    
+    return {
+      success: true,
+      user: ResponseHelper.transformUser(result.user),
+      error: null
+    };
+  }
 }
