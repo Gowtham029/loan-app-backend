@@ -7,13 +7,13 @@ async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
     transport: Transport.GRPC,
     options: {
-      package: 'customer',
-      protoPath: join(__dirname, '../../proto/customer.proto'),
-      url: '0.0.0.0:50051',
+      package: 'auth',
+      protoPath: join(__dirname, '../../proto/auth.proto'),
+      url: '0.0.0.0:50053',
     },
   });
 
   await app.listen();
-  console.log('Customer Service is listening on port 50051');
+  console.log('Auth Service is listening on port 50053');
 }
 bootstrap();

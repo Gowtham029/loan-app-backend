@@ -1,0 +1,74 @@
+{
+  "login": {
+    "method": "POST",
+    "url": "http://localhost:3000/auth/login",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "username": "admin",
+      "password": "password123"
+    }
+  },
+  "createUser": {
+    "method": "POST",
+    "url": "http://localhost:3000/users",
+    "headers": {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer YOUR_JWT_TOKEN_HERE"
+    },
+    "body": {
+      "username": "john_doe",
+      "email": "john.doe@example.com",
+      "firstName": "John",
+      "lastName": "Doe",
+      "role": "manager",
+      "status": "active",
+      "department": "Finance",
+      "phoneNumber": "+1234567890"
+    }
+  },
+  "getUser": {
+    "method": "GET",
+    "url": "http://localhost:3000/users/USER_ID_HERE",
+    "headers": {
+      "Authorization": "Bearer YOUR_JWT_TOKEN_HERE"
+    }
+  },
+  "updateUser": {
+    "method": "PUT",
+    "url": "http://localhost:3000/users/USER_ID_HERE",
+    "headers": {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer YOUR_JWT_TOKEN_HERE"
+    },
+    "body": {
+      "firstName": "John Updated",
+      "department": "IT"
+    }
+  },
+  "listUsers": {
+    "method": "GET",
+    "url": "http://localhost:3000/users?page=1&limit=10&search=john",
+    "headers": {
+      "Authorization": "Bearer YOUR_JWT_TOKEN_HERE"
+    }
+  },
+  "deleteUser": {
+    "method": "DELETE",
+    "url": "http://localhost:3000/users/USER_ID_HERE",
+    "headers": {
+      "Authorization": "Bearer YOUR_JWT_TOKEN_HERE"
+    }
+  },
+  "logout": {
+    "method": "POST",
+    "url": "http://localhost:3000/auth/logout",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "token": "YOUR_JWT_TOKEN_HERE"
+    }
+  }
+}

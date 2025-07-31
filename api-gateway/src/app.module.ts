@@ -5,6 +5,9 @@ import { WinstonModule } from 'nest-winston';
 import { APP_GUARD, APP_FILTER } from '@nestjs/core';
 import { join } from 'path';
 import { CustomerController } from './customer.controller';
+import { AuthController } from './auth.controller';
+import { UserController } from './user.controller';
+import { AuthGuard } from './guards/auth.guard';
 import { LoggerMiddleware } from './middleware/logger.middleware';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
 
@@ -22,13 +25,32 @@ import { HttpExceptionFilter } from './filters/http-exception.filter';
         options: {
           package: 'customer',
           protoPath: join(__dirname, '../../proto/customer.proto'),
+          url: 'localhost:50051',
+        },
+      },
+      {
+        name: 'USER_PACKAGE',
+        transport: Transport.GRPC,
+        options: {
+          package: 'user',
+          protoPath: join(__dirname, '../../proto/user.proto'),
           url: 'localhost:50052',
+        },
+      },
+      {
+        name: 'AUTH_PACKAGE',
+        transport: Transport.GRPC,
+        options: {
+          package: 'auth',
+          protoPath: join(__dirname, '../../proto/auth.proto'),
+          url: 'localhost:50053',
         },
       },
     ]),
   ],
-  controllers: [CustomerController],
+  controllers: [CustomerController, AuthController, UserController],
   providers: [
+    AuthGuard,
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,

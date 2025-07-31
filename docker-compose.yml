@@ -23,12 +23,45 @@ services:
     container_name: customer_service
     restart: unless-stopped
     ports:
+      - "50051:50051"
+    environment:
+      - NODE_ENV=development
+      - MONGODB_URI=mongodb://admin:password123@mongodb:27017/microfinance?authSource=admin
+    depends_on:
+      - mongodb
+    networks:
+      - customer_network
+
+  user-service:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    container_name: user_service
+    restart: unless-stopped
+    ports:
       - "50052:50052"
     environment:
       - NODE_ENV=development
       - MONGODB_URI=mongodb://admin:password123@mongodb:27017/microfinance?authSource=admin
     depends_on:
       - mongodb
+    networks:
+      - customer_network
+
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    container_name: auth_service
+    restart: unless-stopped
+    ports:
+      - "50053:50053"
+    environment:
+      - NODE_ENV=development
+      - JWT_SECRET=microfinance-secret-key
+      - JWT_EXPIRES_IN=24h
+    depends_on:
+      - user-service
     networks:
       - customer_network
 
@@ -44,6 +77,8 @@ services:
       - NODE_ENV=development
     depends_on:
       - customer-service
+      - user-service
+      - auth-service
     networks:
       - customer_network
 

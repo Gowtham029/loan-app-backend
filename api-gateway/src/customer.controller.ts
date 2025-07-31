@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, Query, Inject, OnModuleInit, HttpStatus, HttpException, Logger } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Body, Param, Query, Inject, OnModuleInit, HttpStatus, HttpException, Logger, UseGuards } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { CreateCustomerDto, UpdateCustomerDto, CustomerResponseDto, ListCustomersQueryDto } from './dto/customer.dto';
+import { AuthGuard } from './guards/auth.guard';
 
 interface CustomerService {
   createCustomer(data: any): any;
@@ -13,6 +14,7 @@ interface CustomerService {
 
 @ApiTags('Customers')
 @Controller('customers')
+@UseGuards(AuthGuard)
 export class CustomerController implements OnModuleInit {
   private readonly logger = new Logger(CustomerController.name);
   private customerService: CustomerService;
