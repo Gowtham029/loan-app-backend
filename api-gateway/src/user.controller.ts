@@ -16,7 +16,7 @@ interface UserService {
 }
 
 @ApiTags('Users')
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 @Controller('users')
 @UseGuards(AuthGuard, RolesGuard)
 export class UserController implements OnModuleInit {

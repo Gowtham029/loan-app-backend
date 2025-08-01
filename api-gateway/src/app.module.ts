@@ -7,6 +7,7 @@ import { join } from 'path';
 import { CustomerController } from './customer.controller';
 import { AuthController } from './auth.controller';
 import { UserController } from './user.controller';
+import { LoanController } from './loan.controller';
 import { AuthGuard } from './guards/auth.guard';
 import { LoggerMiddleware } from './middleware/logger.middleware';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
@@ -46,9 +47,18 @@ import { HttpExceptionFilter } from './filters/http-exception.filter';
           url: 'localhost:50053',
         },
       },
+      {
+        name: 'LOAN_PACKAGE',
+        transport: Transport.GRPC,
+        options: {
+          package: 'loan',
+          protoPath: join(__dirname, '../../proto/loan.proto'),
+          url: 'localhost:50054',
+        },
+      },
     ]),
   ],
-  controllers: [CustomerController, AuthController, UserController],
+  controllers: [CustomerController, AuthController, UserController, LoanController],
   providers: [
     AuthGuard,
     {

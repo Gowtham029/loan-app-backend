@@ -18,6 +18,9 @@ async function bootstrap() {
     whitelist: true,
     forbidNonWhitelisted: true,
     validateCustomDecorators: true,
+    transformOptions: {
+      enableImplicitConversion: true,
+    },
     exceptionFactory: (errors) => {
       const errorMessages = errors.map(error => 
         Object.values(error.constraints || {}).join(', ')
@@ -31,10 +34,24 @@ async function bootstrap() {
   
   // Swagger setup
   const config = new DocumentBuilder()
-    .setTitle('Customer Management API')
-    .setDescription('API for managing customer data in microfinance system')
+    .setTitle('Microfinance Management API')
+    .setDescription('API for managing microfinance system - customers, users, loans')
     .setVersion('1.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Enter JWT token',
+        in: 'header',
+      },
+      'JWT-auth',
+    )
+    .addTag('Authentication')
     .addTag('Customers')
+    .addTag('Users')
+    .addTag('Loans')
     .build();
   
   const document = SwaggerModule.createDocument(app, config);

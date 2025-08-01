@@ -4,7 +4,7 @@ services:
   mongodb:
     image: mongo:6.0
     container_name: customer_mongodb
-    restart: unless-stopped
+    restart: always
     ports:
       - "27017:27017"
     environment:
@@ -21,7 +21,7 @@ services:
       context: ./customer-service
       dockerfile: Dockerfile
     container_name: customer_service
-    restart: unless-stopped
+    restart: always
     ports:
       - "50051:50051"
     environment:
@@ -37,7 +37,7 @@ services:
       context: ./user-service
       dockerfile: Dockerfile
     container_name: user_service
-    restart: unless-stopped
+    restart: always
     ports:
       - "50052:50052"
     environment:
@@ -53,7 +53,7 @@ services:
       context: ./auth-service
       dockerfile: Dockerfile
     container_name: auth_service
-    restart: unless-stopped
+    restart: always
     ports:
       - "50053:50053"
     environment:
@@ -65,12 +65,28 @@ services:
     networks:
       - customer_network
 
+  loan-service:
+    build:
+      context: ./loan-service
+      dockerfile: Dockerfile
+    container_name: loan_service
+    restart: always
+    ports:
+      - "50054:50054"
+    environment:
+      - NODE_ENV=development
+      - MONGODB_URI=mongodb://admin:password123@mongodb:27017/microfinance?authSource=admin
+    depends_on:
+      - mongodb
+    networks:
+      - customer_network
+
   api-gateway:
     build:
       context: ./api-gateway
       dockerfile: Dockerfile
     container_name: api_gateway
-    restart: unless-stopped
+    restart: always
     ports:
       - "3000:3000"
     environment:
@@ -79,6 +95,7 @@ services:
       - customer-service
       - user-service
       - auth-service
+      - loan-service
     networks:
       - customer_network
 

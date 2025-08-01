@@ -1,0 +1,42 @@
+{
+  "name": "loan-service",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "nest build",
+    "start": "nest start",
+    "start:dev": "nodemon --exec \"nest start\" --watch src --ext ts --delay 1000ms",
+    "start:prod": "node dist/main"
+  },
+  "nodemonConfig": {
+    "restartable": "rs",
+    "ignore": [".git", "node_modules/**/node_modules"],
+    "watch": ["src/"],
+    "ext": "ts",
+    "env": {
+      "NODE_ENV": "development"
+    }
+  },
+  "dependencies": {
+    "@nestjs/common": "^10.0.0",
+    "@nestjs/core": "^10.0.0",
+    "@nestjs/microservices": "^10.0.0",
+    "@nestjs/mongoose": "^10.0.1",
+    "@grpc/grpc-js": "^1.9.0",
+    "@grpc/proto-loader": "^0.7.8",
+    "class-validator": "^0.14.0",
+    "class-transformer": "^0.5.1",
+    "mongoose": "^7.4.0",
+    "joi": "^17.9.2",
+    "class-validator": "^0.14.0",
+    "class-transformer": "^0.5.1",
+    "reflect-metadata": "^0.1.13",
+    "rxjs": "^7.8.1"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^10.0.0",
+    "@types/node": "^20.3.1",
+    "@types/joi": "^17.2.3",
+    "nodemon": "^3.0.1",
+    "typescript": "^5.1.3"
+  }
+}

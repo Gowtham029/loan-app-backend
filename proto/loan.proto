@@ -1,0 +1,129 @@
+syntax = "proto3";
+
+package loan;
+
+service LoanService {
+  rpc CreateLoan (CreateLoanRequest) returns (LoanResponse);
+  rpc GetLoan (GetLoanRequest) returns (LoanResponse);
+  rpc UpdateLoan (UpdateLoanRequest) returns (LoanResponse);
+  rpc DeleteLoan (DeleteLoanRequest) returns (DeleteLoanResponse);
+  rpc ListLoans (ListLoansRequest) returns (ListLoansResponse);
+}
+
+message PaisaRate {
+  double ratePer100 = 1;
+  string frequency = 2;
+}
+
+message Customer {
+  string customerId = 1;
+  string firstName = 2;
+  string lastName = 3;
+  string email = 4;
+  string phoneNumber = 5;
+}
+
+message LoanProvider {
+  string userId = 1;
+  string username = 2;
+  string firstName = 3;
+  string lastName = 4;
+  string email = 5;
+}
+
+message Document {
+  string documentType = 1;
+  string documentNumber = 2;
+  string documentUrl = 3;
+}
+
+message CreateLoanRequest {
+  Customer customer = 1;
+  double principalAmount = 2;
+  string interestRateType = 3;
+  double interestRate = 4;
+  PaisaRate paisaRate = 5;
+  int32 loanTerm = 6;
+  string repaymentFrequency = 7;
+  string startDate = 8;
+  string endDate = 9;
+  string status = 10;
+  double balanceRemaining = 11;
+  LoanProvider loanProvider = 12;
+  repeated Document documents = 13;
+}
+
+message UpdateLoanRequest {
+  string loanId = 1;
+  Customer customer = 2;
+  double principalAmount = 3;
+  string interestRateType = 4;
+  double interestRate = 5;
+  PaisaRate paisaRate = 6;
+  int32 loanTerm = 7;
+  string repaymentFrequency = 8;
+  string startDate = 9;
+  string endDate = 10;
+  string status = 11;
+  double balanceRemaining = 12;
+  LoanProvider updatedBy = 13;
+  repeated Document documents = 14;
+}
+
+message GetLoanRequest {
+  string loanId = 1;
+}
+
+message DeleteLoanRequest {
+  string loanId = 1;
+}
+
+message ListLoansRequest {
+  int32 page = 1;
+  int32 limit = 2;
+  string search = 3;
+  string customerId = 4;
+  string status = 5;
+}
+
+message Loan {
+  string id = 1;
+  string loanId = 2;
+  Customer customer = 3;
+  double principalAmount = 4;
+  string interestRateType = 5;
+  double interestRate = 6;
+  PaisaRate paisaRate = 7;
+  int32 loanTerm = 8;
+  string repaymentFrequency = 9;
+  string startDate = 10;
+  string endDate = 11;
+  string status = 12;
+  double balanceRemaining = 13;
+  LoanProvider loanProvider = 14;
+  LoanProvider updatedBy = 15;
+  repeated Document documents = 16;
+  string createdAt = 17;
+  string updatedAt = 18;
+}
+
+message LoanResponse {
+  bool success = 1;
+  Loan loan = 2;
+  string error = 3;
+}
+
+message DeleteLoanResponse {
+  bool success = 1;
+  string message = 2;
+  string error = 3;
+}
+
+message ListLoansResponse {
+  bool success = 1;
+  repeated Loan loans = 2;
+  int32 total = 3;
+  int32 page = 4;
+  int32 limit = 5;
+  string error = 6;
+}

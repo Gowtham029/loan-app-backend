@@ -15,7 +15,7 @@ interface CustomerService {
 }
 
 @ApiTags('Customers')
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 @Controller('customers')
 @UseGuards(AuthGuard, RolesGuard)
 export class CustomerController implements OnModuleInit {
