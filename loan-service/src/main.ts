@@ -6,9 +6,6 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   try {
-    console.log('Starting Loan Service...');
-    console.log('Proto path:', join(__dirname, '../../proto/loan.proto'));
-    
     const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
       transport: Transport.GRPC,
       options: {
@@ -27,9 +24,7 @@ async function bootstrap() {
     }));
 
     await app.listen();
-    console.log('Loan Service is listening on port 50054');
   } catch (error) {
-    console.error('Failed to start Loan Service:', error);
     process.exit(1);
   }
 }

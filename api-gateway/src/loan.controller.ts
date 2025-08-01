@@ -25,13 +25,7 @@ export class LoanController implements OnModuleInit {
   constructor(@Inject('LOAN_PACKAGE') private client: ClientGrpc) {}
 
   onModuleInit() {
-    console.log('Initializing Loan Controller...');
-    try {
-      this.loanService = this.client.getService<LoanService>('LoanService');
-      console.log('Loan service client initialized successfully');
-    } catch (error) {
-      console.error('Failed to initialize loan service client:', error);
-    }
+    this.loanService = this.client.getService<LoanService>('LoanService');
   }
 
   @Post()
@@ -43,15 +37,12 @@ export class LoanController implements OnModuleInit {
   @ApiResponse({ status: 403, description: 'Forbidden - Admin or Manager role required' })
   async createLoan(@Body() createLoanDto: CreateLoanDto, @Request() req: any) {
     try {
-      console.log('CreateLoan DTO received:', JSON.stringify(createLoanDto, null, 2));
-      console.log('User from JWT:', JSON.stringify(req.user, null, 2));
-      
       const loanProvider = {
-        userId: req.user?.id || req.user?.sub || 'unknown',
-        username: req.user?.username || 'unknown',
-        firstName: req.user?.firstName || 'Unknown',
-        lastName: req.user?.lastName || 'User',
-        email: req.user?.email || 'unknown@example.com'
+        userId: req.user?.id || req.user?.sub,
+        username: req.user?.username,
+        firstName: req.user?.firstName,
+        lastName: req.user?.lastName,
+        email: req.user?.email
       };
       
       const loanData = {
@@ -59,23 +50,15 @@ export class LoanController implements OnModuleInit {
         loanProvider
       };
       
-      console.log('Final loan data being sent:', JSON.stringify(loanData, null, 2));
       const result = await firstValueFrom(this.loanService.CreateLoan(loanData)) as any;
-      console.log('Loan service response:', JSON.stringify(result, null, 2));
       
       if (!result.success) {
         throw new HttpException(result.error, HttpStatus.BAD_REQUEST);
       }
 
-      return {
-        success: true,
-        loan: result.loan,
-      };
+      return result;
     } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
-      }
-      throw new HttpException('Failed to create loan', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw error instanceof HttpException ? error : new HttpException('Failed to create loan', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -93,15 +76,9 @@ export class LoanController implements OnModuleInit {
         throw new HttpException(result.error, HttpStatus.NOT_FOUND);
       }
 
-      return {
-        success: true,
-        loan: result.loan,
-      };
+      return result;
     } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
-      }
-      throw new HttpException('Failed to get loan', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw error instanceof HttpException ? error : new HttpException('Failed to get loan', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -134,15 +111,9 @@ export class LoanController implements OnModuleInit {
         throw new HttpException(result.error, HttpStatus.BAD_REQUEST);
       }
 
-      return {
-        success: true,
-        loan: result.loan,
-      };
+      return result;
     } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
-      }
-      throw new HttpException('Failed to update loan', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw error instanceof HttpException ? error : new HttpException('Failed to update loan', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -161,15 +132,9 @@ export class LoanController implements OnModuleInit {
         throw new HttpException(result.error, HttpStatus.NOT_FOUND);
       }
 
-      return {
-        success: true,
-        message: result.message,
-      };
+      return result;
     } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
-      }
-      throw new HttpException('Failed to delete loan', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw error instanceof HttpException ? error : new HttpException('Failed to delete loan', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -197,18 +162,9 @@ export class LoanController implements OnModuleInit {
         throw new HttpException(result.error, HttpStatus.BAD_REQUEST);
       }
 
-      return {
-        success: true,
-        loans: result.loans,
-        total: result.total,
-        page: result.page,
-        limit: result.limit,
-      };
+      return result;
     } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
-      }
-      throw new HttpException('Failed to list loans', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw error instanceof HttpException ? error : new HttpException('Failed to list loans', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }

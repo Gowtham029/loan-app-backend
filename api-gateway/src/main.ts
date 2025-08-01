@@ -25,7 +25,6 @@ async function bootstrap() {
       const errorMessages = errors.map(error => 
         Object.values(error.constraints || {}).join(', ')
       ).join('; ');
-      console.log("Validation Error", errorMessages);
       return new BadRequestException(errorMessages);
     },
   }));
