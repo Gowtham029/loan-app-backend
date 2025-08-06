@@ -21,7 +21,7 @@ export class IdentificationDocument {
   @Prop() issuingAuthority: string;
   @Prop() issueDate: Date;
   @Prop() expiryDate: Date;
-  @Prop() documentImageUrl: string;
+  @Prop() documentUrl: string;
 }
 
 @Schema({ _id: false })
@@ -70,6 +70,7 @@ export class CommunicationPreferences {
 
 @Schema({ timestamps: true })
 export class Customer {
+  @Prop({ unique: true }) customerId: string;
   @Prop({ required: true }) firstName: string;
   @Prop() middleName: string;
   @Prop({ required: true }) lastName: string;
@@ -77,9 +78,10 @@ export class Customer {
   @Prop() gender: string;
   @Prop() nationality: string;
   @Prop() maritalStatus: string;
-  @Prop({ required: true, unique: true }) email: string;
+  @Prop() email: string;
   @Prop({ required: true }) phoneNumber: string;
   @Prop() alternatePhoneNumber: string;
+  @Prop() photoUrl: string;
   @Prop({ type: Address }) currentAddress: Address;
   @Prop({ type: Address }) permanentAddress: Address;
   @Prop([IdentificationDocument]) identificationDocuments: IdentificationDocument[];
@@ -102,3 +104,6 @@ export class Customer {
 }
 
 export const CustomerSchema = SchemaFactory.createForClass(Customer);
+
+// Create sparse unique index on email - allows multiple null values but ensures unique non-null values
+CustomerSchema.index({ email: 1 }, { unique: true, sparse: true });

@@ -10,25 +10,32 @@ export class CustomerRepository implements ICustomerRepository {
     @InjectModel(Customer.name) private customerModel: Model<CustomerDocument>,
   ) {}
 
+  private generateCustomerId(): string {
+    const random = Math.floor(Math.random() * 99999) + 1;
+    const paddedNumber = random.toString().padStart(5, '0');
+    return `HEXACUS${paddedNumber}`;
+  }
+
   async create(customerData: ICustomer): Promise<ICustomer> {
-    const customer = new this.customerModel(customerData);
+    const customerId = this.generateCustomerId();
+    const customer = new this.customerModel({ ...customerData, customerId });
     return customer.save();
   }
 
   async findById(customerId: string): Promise<ICustomer | null> {
-    return this.customerModel.findById(customerId).exec();
+    return this.customerModel.findOne({ customerId }).exec();
   }
 
   async update(customerId: string, updateData: Partial<ICustomer>): Promise<ICustomer | null> {
-    return this.customerModel.findByIdAndUpdate(
-      customerId,
+    return this.customerModel.findOneAndUpdate(
+      { customerId },
       { ...updateData, updatedAt: new Date() },
       { new: true }
     ).exec();
   }
 
   async delete(customerId: string): Promise<boolean> {
-    const result = await this.customerModel.findByIdAndDelete(customerId).exec();
+    const result = await this.customerModel.findOneAndDelete({ customerId }).exec();
     return !!result;
   }
 

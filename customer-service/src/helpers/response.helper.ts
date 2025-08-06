@@ -21,11 +21,11 @@ export class ResponseHelper {
     if (!customer) return null;
     
     return {
-      customerId: customer._id?.toString(),
+      customerId: customer.customerId,
       firstName: customer.firstName,
       middleName: customer.middleName,
       lastName: customer.lastName,
-      dateOfBirth: customer.dateOfBirth?.toISOString(),
+      dateOfBirth: customer.dateOfBirth ? customer.dateOfBirth.toISOString().split('T')[0] : undefined,
       gender: customer.gender,
       nationality: customer.nationality,
       maritalStatus: customer.maritalStatus,

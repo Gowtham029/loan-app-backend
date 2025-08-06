@@ -7,7 +7,7 @@ const addressSchema = Joi.object({
   state: Joi.string().required(),
   postalCode: Joi.string().required(),
   country: Joi.string().required(),
-  addressType: Joi.string().valid(...Object.values(CUSTOMER_CONSTANTS.ADDRESS_TYPES)).required(),
+  addressType: Joi.string().optional(),
   residenceSince: Joi.date().optional()
 });
 
@@ -17,7 +17,7 @@ const identificationDocumentSchema = Joi.object({
   issuingAuthority: Joi.string().required(),
   issueDate: Joi.date().required(),
   expiryDate: Joi.date().required(),
-  documentImageUrl: Joi.string().uri().optional()
+  documentUrl: Joi.string().uri().optional()
 });
 
 const employmentDetailsSchema = Joi.object({
@@ -67,9 +67,9 @@ export const createCustomerSchema = Joi.object({
   gender: Joi.string().valid(...Object.values(CUSTOMER_CONSTANTS.GENDER)).optional(),
   nationality: Joi.string().optional(),
   maritalStatus: Joi.string().valid(...Object.values(CUSTOMER_CONSTANTS.MARITAL_STATUS)).optional(),
-  email: Joi.string().email().required(),
-  phoneNumber: Joi.string().pattern(/^\+?[1-9]\d{1,14}$/).required(),
-  alternatePhoneNumber: Joi.string().pattern(/^\+?[1-9]\d{1,14}$/).optional(),
+  email: Joi.string().email().optional(),
+  phoneNumber: Joi.string().pattern(/^[6-9]\d{9}$/).required(),
+  alternatePhoneNumber: Joi.string().pattern(/^[6-9]\d{9}$/).optional(),
   currentAddress: addressSchema.optional(),
   permanentAddress: addressSchema.optional(),
   identificationDocuments: Joi.array().items(identificationDocumentSchema).optional(),
@@ -100,8 +100,8 @@ export const updateCustomerSchema = Joi.object({
   nationality: Joi.string().optional(),
   maritalStatus: Joi.string().valid(...Object.values(CUSTOMER_CONSTANTS.MARITAL_STATUS)).optional(),
   email: Joi.string().email().optional(),
-  phoneNumber: Joi.string().pattern(/^\+?[1-9]\d{1,14}$/).optional(),
-  alternatePhoneNumber: Joi.string().pattern(/^\+?[1-9]\d{1,14}$/).optional(),
+  phoneNumber: Joi.string().pattern(/^[6-9]\d{9}$/).optional(),
+  alternatePhoneNumber: Joi.string().pattern(/^[6-9]\d{9}$/).optional(),
   currentAddress: addressSchema.optional(),
   permanentAddress: addressSchema.optional(),
   identificationDocuments: Joi.array().items(identificationDocumentSchema).optional(),
@@ -119,7 +119,7 @@ export const updateCustomerSchema = Joi.object({
   communicationPreferences: communicationPreferencesSchema.optional(),
   customerNotes: Joi.string().max(1000).optional(),
   internalRemarks: Joi.string().max(1000).optional(),
-  lastModifiedBy: Joi.string().required()
+  lastModifiedBy: Joi.string().optional()
 });
 
 export const paginationSchema = Joi.object({

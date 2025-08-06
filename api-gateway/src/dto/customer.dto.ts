@@ -49,9 +49,10 @@ class AddressDto {
   @IsString()
   country: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
-  addressType: string;
+  addressType?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -68,22 +69,25 @@ class IdentificationDocumentDto {
   @IsString()
   documentNumber: string;
 
-  @ApiProperty({ example: 'Government Authority' })
+  @ApiPropertyOptional({ example: 'Government Authority' })
+  @IsOptional()
   @IsString()
-  issuingAuthority: string;
+  issuingAuthority?: string;
 
-  @ApiProperty({ example: '2020-01-01' })
+  @ApiPropertyOptional({ example: '2020-01-01' })
+  @IsOptional()
   @IsDateString()
-  issueDate: string;
+  issueDate?: string;
 
-  @ApiProperty({ example: '2030-01-01' })
+  @ApiPropertyOptional({ example: '2030-01-01' })
+  @IsOptional()
   @IsDateString()
-  expiryDate: string;
+  expiryDate?: string;
 
   @ApiPropertyOptional({ example: 'https://example.com/document.jpg' })
   @IsOptional()
-  @IsUrl({}, { message: 'Document image URL must be valid' })
-  documentImageUrl?: string;
+  @IsString()
+  documentUrl?: string;
 }
 
 class EmploymentDetailsDto {
@@ -155,19 +159,26 @@ export class CreateCustomerDto {
   @IsEnum(MaritalStatus)
   maritalStatus?: MaritalStatus;
 
-  @ApiProperty({ example: 'john.doe@email.com' })
+  @ApiPropertyOptional({ example: 'john.doe@email.com' })
+  @IsOptional()
   @IsEmail()
-  email: string;
+  email?: string;
 
-  @ApiProperty({ example: '+1234567890' })
+  @ApiProperty({ example: '9876543210' })
   @IsString()
-  @Matches(/^\+?[1-9]\d{1,14}$/, { message: 'Phone number must be valid international format' })
+  @Matches(/^[6-9]\d{9}$/, { message: 'Phone number must be a valid 10-digit Indian mobile number' })
   phoneNumber: string;
 
-  @ApiPropertyOptional({ example: '+1234567891' })
+  @ApiPropertyOptional({ example: '9876543211' })
   @IsOptional()
   @IsString()
+  @Matches(/^[6-9]\d{9}$/, { message: 'Alternate phone number must be a valid 10-digit Indian mobile number' })
   alternatePhoneNumber?: string;
+
+  @ApiPropertyOptional({ example: 'https://example.com/photo.jpg' })
+  @IsOptional()
+  // @IsUrl({}, { message: 'Photo URL must be valid' })
+  photoUrl?: string;
 
   @ApiPropertyOptional({ type: AddressDto })
   @IsOptional()
@@ -273,10 +284,22 @@ export class UpdateCustomerDto {
   @IsEmail()
   email?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: '9876543210' })
   @IsOptional()
   @IsString()
+  @Matches(/^[6-9]\d{9}$/, { message: 'Phone number must be a valid 10-digit Indian mobile number' })
   phoneNumber?: string;
+
+  @ApiPropertyOptional({ example: '9876543211' })
+  @IsOptional()
+  @IsString()
+  @Matches(/^[6-9]\d{9}$/, { message: 'Alternate phone number must be a valid 10-digit Indian mobile number' })
+  alternatePhoneNumber?: string;
+
+  @ApiPropertyOptional({ example: 'https://example.com/photo.jpg' })
+  @IsOptional()
+  @IsUrl({}, { message: 'Photo URL must be valid' })
+  photoUrl?: string;
 
   @ApiPropertyOptional({ type: AddressDto })
   @IsOptional()
@@ -321,35 +344,83 @@ export class UpdateCustomerDto {
 }
 
 export class CustomerResponseDto {
-  @ApiProperty()
+  @ApiProperty({ example: 'HEXACUS00001' })
   customerId: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'Sarah' })
   firstName: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional({ example: 'Elizabeth' })
+  middleName?: string;
+
+  @ApiProperty({ example: 'Johnson' })
   lastName: string;
 
-  @ApiProperty()
-  email: string;
+  @ApiPropertyOptional({ example: '1988-03-15' })
+  dateOfBirth?: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional({ example: 'Female' })
+  gender?: string;
+
+  @ApiPropertyOptional({ example: 'American' })
+  nationality?: string;
+
+  @ApiPropertyOptional({ example: 'Married' })
+  maritalStatus?: string;
+
+  @ApiPropertyOptional({ example: 'sarah.johnson@email.com' })
+  email?: string;
+
+  @ApiProperty({ example: '9876543210' })
   phoneNumber: string;
+
+  @ApiPropertyOptional({ example: '9876543211' })
+  alternatePhoneNumber?: string;
+
+  @ApiPropertyOptional({ example: 'https://example.com/customer-photo.jpg' })
+  photoUrl?: string;
+
+  @ApiPropertyOptional({ type: AddressDto })
+  currentAddress?: AddressDto;
+
+  @ApiPropertyOptional({ type: AddressDto })
+  permanentAddress?: AddressDto;
 
   @ApiPropertyOptional({ type: [IdentificationDocumentDto] })
   identificationDocuments?: IdentificationDocumentDto[];
 
-  @ApiProperty()
+  @ApiPropertyOptional({ type: EmploymentDetailsDto })
+  employmentDetails?: EmploymentDetailsDto;
+
+  @ApiPropertyOptional({ example: 785 })
+  creditScore?: number;
+
+  @ApiProperty({ example: 'Pending' })
   kycStatus: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional({ example: 'Medium' })
+  riskProfile?: string;
+
+  @ApiProperty({ example: 'Active' })
   accountStatus: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional({ example: true })
+  fatcaStatus?: boolean;
+
+  @ApiPropertyOptional({ example: false })
+  pepStatus?: boolean;
+
+  @ApiPropertyOptional({ example: 'New customer application. Excellent credit history and stable employment.' })
+  customerNotes?: string;
+
+  @ApiProperty({ example: '2025-07-30T07:44:37.686Z' })
   createdAt: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: '2025-07-30T07:44:37.686Z' })
   updatedAt: string;
+
+  @ApiPropertyOptional({ example: 'bank_officer_001' })
+  createdBy?: string;
 }
 
 export class ListCustomersQueryDto {
@@ -373,4 +444,21 @@ export class ListCustomersQueryDto {
   @IsString()
   @Allow()
   search?: string;
+}
+
+export class ListCustomersResponseDto {
+  @ApiProperty({ example: true })
+  success: boolean;
+
+  @ApiProperty({ type: [CustomerResponseDto] })
+  customers: CustomerResponseDto[];
+
+  @ApiProperty({ example: 25 })
+  total: number;
+
+  @ApiProperty({ example: 1 })
+  page: number;
+
+  @ApiProperty({ example: 10 })
+  limit: number;
 }

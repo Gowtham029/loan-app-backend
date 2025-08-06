@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Patch, Delete, Body, Param, Query, Inject, OnModuleInit, HttpStatus, HttpException, Logger, UseGuards } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
-import { CreateCustomerDto, UpdateCustomerDto, CustomerResponseDto, ListCustomersQueryDto } from './dto/customer.dto';
+import { CreateCustomerDto, UpdateCustomerDto, CustomerResponseDto, ListCustomersQueryDto, ListCustomersResponseDto } from './dto/customer.dto';
 import { AuthGuard } from './guards/auth.guard';
 import { RolesGuard } from './guards/roles.guard';
 import { Roles } from './decorators/roles.decorator';
@@ -43,18 +43,7 @@ export class CustomerController implements OnModuleInit {
     
     const result = await this.customerService.createCustomer(createCustomerDto);
     
-    // if (!result.success) {
-    //   this.logger.error(JSON.stringify({
-    //     method: 'createCustomer',
-    //     error: result.error,
-    //     data: { email: createCustomerDto.email, firstName: createCustomerDto.firstName },
-    //     timestamp: new Date().toISOString()
-    //   }));
-    //   if (result.error?.includes('already exists')) {
-    //     throw new HttpException(result.error, HttpStatus.CONFLICT);
-    //   }
-    //   throw new HttpException(result.error || 'Bad request', HttpStatus.BAD_REQUEST);
-    // }
+    
     
     return result;
   }
@@ -66,17 +55,6 @@ export class CustomerController implements OnModuleInit {
   @ApiResponse({ status: 404, description: 'Customer not found' })
   async getCustomer(@Param('id') id: string) {
     const result = await this.customerService.getCustomer({ customerId: id });
-    
-    if (!result.success) {
-      this.logger.error(JSON.stringify({
-        method: 'getCustomer',
-        error: result.error,
-        customerId: id,
-        timestamp: new Date().toISOString()
-      }));
-      throw new HttpException(result.error || 'Customer not found', HttpStatus.NOT_FOUND);
-    }
-    
     return result;
   }
 
@@ -93,22 +71,7 @@ export class CustomerController implements OnModuleInit {
     if (!updateCustomerDto.lastModifiedBy) {
       updateCustomerDto.lastModifiedBy = 'admin';
     }
-    
     const result = await this.customerService.updateCustomer({ customerId: id, ...updateCustomerDto });
-    
-    if (!result.success) {
-      this.logger.error(JSON.stringify({
-        method: 'updateCustomer',
-        error: result.error,
-        customerId: id,
-        timestamp: new Date().toISOString()
-      }));
-      if (result.error?.includes('not found')) {
-        throw new HttpException(result.error, HttpStatus.NOT_FOUND);
-      }
-      throw new HttpException(result.error || 'Bad request', HttpStatus.BAD_REQUEST);
-    }
-    
     return result;
   }
 
@@ -121,17 +84,6 @@ export class CustomerController implements OnModuleInit {
   @ApiResponse({ status: 403, description: 'Forbidden - Admin role required' })
   async deleteCustomer(@Param('id') id: string) {
     const result = await this.customerService.deleteCustomer({ customerId: id });
-    
-    if (!result.success) {
-      this.logger.error(JSON.stringify({
-        method: 'deleteCustomer',
-        error: result.error,
-        customerId: id,
-        timestamp: new Date().toISOString()
-      }));
-      throw new HttpException(result.error || 'Customer not found', HttpStatus.NOT_FOUND);
-    }
-    
     return result;
   }
 
@@ -140,21 +92,10 @@ export class CustomerController implements OnModuleInit {
   @ApiQuery({ name: 'page', required: false, description: 'Page number' })
   @ApiQuery({ name: 'limit', required: false, description: 'Items per page' })
   @ApiQuery({ name: 'search', required: false, description: 'Search term', allowEmptyValue: false })
-  @ApiResponse({ status: 200, description: 'Customers list' })
+  @ApiResponse({ status: 200, description: 'Customers list', type: ListCustomersResponseDto })
   @ApiResponse({ status: 400, description: 'Invalid query parameters' })
   async listCustomers(@Query() query: ListCustomersQueryDto) {
     const result = await this.customerService.listCustomers(query);
-    
-    // if (!result.success) {
-    //   this.logger.error(JSON.stringify({
-    //     method: 'listCustomers',
-    //     error: result.error,
-    //     query: query,
-    //     timestamp: new Date().toISOString()
-    //   }));
-    //   throw new HttpException(result.error || 'Bad request', HttpStatus.BAD_REQUEST);
-    // }
-    
     return result;
   }
 }

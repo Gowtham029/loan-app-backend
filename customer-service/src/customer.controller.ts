@@ -12,7 +12,6 @@ export class CustomerController {
 
   @GrpcMethod('CustomerService', 'CreateCustomer')
   async createCustomer(data: CreateCustomerDto) {
-    this.logger.log(`CreateCustomer: ${JSON.stringify(data)}`);
     try {
       const result = await this.customerService.create(data);
       
@@ -67,7 +66,6 @@ export class CustomerController {
   @GrpcMethod('CustomerService', 'UpdateCustomer')
   async updateCustomer(data: UpdateCustomerDto) {
     const result = await this.customerService.update(data);
-    
     if (result.error) {
       this.logger.error(JSON.stringify({
         method: 'UpdateCustomer',

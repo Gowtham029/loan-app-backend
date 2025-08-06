@@ -4,7 +4,7 @@ export interface IAddress {
   state: string;
   postalCode: string;
   country: string;
-  addressType: string;
+  addressType?: string;
   residenceSince?: Date;
 }
 
@@ -14,7 +14,7 @@ export interface IIdentificationDocument {
   issuingAuthority: string;
   issueDate: Date;
   expiryDate: Date;
-  documentImageUrl?: string;
+  documentUrl?: string;
 }
 
 export interface IEmploymentDetails {
@@ -65,9 +65,10 @@ export interface ICustomer {
   gender?: string;
   nationality?: string;
   maritalStatus?: string;
-  email: string;
+  email?: string;
   phoneNumber: string;
   alternatePhoneNumber?: string;
+  photoUrl?: string;
   currentAddress?: IAddress;
   permanentAddress?: IAddress;
   identificationDocuments?: IIdentificationDocument[];

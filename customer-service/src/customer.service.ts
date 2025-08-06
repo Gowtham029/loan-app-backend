@@ -18,10 +18,12 @@ export class CustomerService {
       return { error: error || 'Validation failed' };
     }
 
-    // Check for duplicate email
-    const existingCustomer = await this.customerRepository.findByEmail(value.email);
-    if (existingCustomer) {
-      return { error: 'Customer with this email already exists' };
+    // Check for duplicate email if provided
+    if (value.email) {
+      const existingCustomer = await this.customerRepository.findByEmail(value.email);
+      if (existingCustomer) {
+        return { error: 'Customer with this email already exists' };
+      }
     }
 
     const customer = await this.customerRepository.create(value);

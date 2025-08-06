@@ -8,9 +8,10 @@ export class CreateCustomerDto implements Omit<ICustomer, 'customerId' | 'create
   gender?: string;
   nationality?: string;
   maritalStatus?: string;
-  email: string;
+  email?: string;
   phoneNumber: string;
   alternatePhoneNumber?: string;
+  photoUrl?: string;
   currentAddress?: any;
   permanentAddress?: any;
   identificationDocuments?: any[];
@@ -44,6 +45,7 @@ export class UpdateCustomerDto implements Partial<ICustomer> {
   email?: string;
   phoneNumber?: string;
   alternatePhoneNumber?: string;
+  photoUrl?: string;
   currentAddress?: any;
   permanentAddress?: any;
   identificationDocuments?: any[];

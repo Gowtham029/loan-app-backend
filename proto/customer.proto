@@ -159,7 +159,7 @@ message IdentificationDocument {
   string issuingAuthority = 3;
   string issueDate = 4;
   string expiryDate = 5;
-  string documentImageUrl = 6;
+  string documentUrl = 6;
 }
 
 message EmploymentDetails {
