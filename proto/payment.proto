@@ -1,0 +1,118 @@
+syntax = "proto3";
+
+package payment;
+
+message PaymentBreakdown {
+  double principalPortion = 1;
+  double interestPortion = 2;
+  double penaltyPortion = 3;
+  double lateFeesPortion = 4;
+  double savingsFromEarlyPayment = 5;
+}
+
+message PaymentDetails {
+  string dueDate = 1;
+  string paidDate = 2;
+  double expectedAmount = 3;
+  double paidAmount = 4;
+  PaymentBreakdown breakdown = 5;
+}
+
+message PaymentMethod {
+  string type = 1;
+  string reference = 2;
+  string bankName = 3;
+  string accountNumber = 4;
+}
+
+message OutstandingAfterPayment {
+  double remainingPrincipal = 1;
+  double remainingInterest = 2;
+  double totalRemaining = 3;
+}
+
+message CreatePaymentRequest {
+  string loanId = 1;
+  string customerId = 2;
+  PaymentDetails paymentDetails = 3;
+  PaymentMethod paymentMethod = 4;
+  string paymentType = 5;
+  string processedBy = 6;
+}
+
+message UpdatePaymentRequest {
+  string paymentId = 1;
+  string status = 2;
+  string failureReason = 3;
+  PaymentMethod paymentMethod = 4;
+  string processedBy = 5;
+}
+
+message GetPaymentRequest {
+  string paymentId = 1;
+}
+
+message DeletePaymentRequest {
+  string paymentId = 1;
+  string reason = 2;
+  string deletedBy = 3;
+}
+
+message ListPaymentsRequest {
+  int32 page = 1;
+  int32 limit = 2;
+  string loanId = 3;
+  string customerId = 4;
+  string status = 5;
+  string paymentType = 6;
+  string sortBy = 7;
+  string sortOrder = 8;
+}
+
+message Payment {
+  string id = 1;
+  string paymentId = 2;
+  string loanId = 3;
+  string customerId = 4;
+  PaymentDetails paymentDetails = 5;
+  PaymentMethod paymentMethod = 6;
+  string status = 7;
+  string paymentType = 8;
+  bool isPartialPayment = 9;
+  int32 daysPastDue = 10;
+  OutstandingAfterPayment outstandingAfterPayment = 11;
+  string processedBy = 12;
+  string processedAt = 13;
+  string createdAt = 14;
+  string updatedAt = 15;
+  string failureReason = 16;
+}
+
+message PaymentResponse {
+  bool success = 1;
+  Payment payment = 2;
+  string error = 3;
+}
+
+message ListPaymentsResponse {
+  bool success = 1;
+  repeated Payment payments = 2;
+  int32 total = 3;
+  int32 page = 4;
+  int32 limit = 5;
+  string error = 6;
+}
+
+message DeletePaymentResponse {
+  bool success = 1;
+  string message = 2;
+  string error = 3;
+}
+
+service PaymentService {
+  rpc CreatePayment(CreatePaymentRequest) returns (PaymentResponse);
+  rpc GetPayment(GetPaymentRequest) returns (PaymentResponse);
+  rpc UpdatePayment(UpdatePaymentRequest) returns (PaymentResponse);
+  rpc DeletePayment(DeletePaymentRequest) returns (DeletePaymentResponse);
+  rpc ListPayments(ListPaymentsRequest) returns (ListPaymentsResponse);
+}

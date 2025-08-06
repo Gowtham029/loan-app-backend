@@ -81,6 +81,22 @@ services:
     networks:
       - customer_network
 
+  payment-service:
+    build:
+      context: ./payment-service
+      dockerfile: Dockerfile
+    container_name: payment_service
+    restart: always
+    ports:
+      - "50055:50055"
+    environment:
+      - NODE_ENV=development
+      - MONGODB_URI=mongodb://admin:password123@mongodb:27017/microfinance?authSource=admin
+    depends_on:
+      - mongodb
+    networks:
+      - customer_network
+
   api-gateway:
     build:
       context: ./api-gateway
@@ -96,6 +112,7 @@ services:
       - user-service
       - auth-service
       - loan-service
+      - payment-service
     networks:
       - customer_network
 

@@ -8,6 +8,7 @@ import { CustomerController } from './customer.controller';
 import { AuthController } from './auth.controller';
 import { UserController } from './user.controller';
 import { LoanController } from './loan.controller';
+import { PaymentController } from './payment.controller';
 import { AuthGuard } from './guards/auth.guard';
 import { LoggerMiddleware } from './middleware/logger.middleware';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
@@ -56,9 +57,18 @@ import { HttpExceptionFilter } from './filters/http-exception.filter';
           url: 'localhost:50054',
         },
       },
+      {
+        name: 'PAYMENT_PACKAGE',
+        transport: Transport.GRPC,
+        options: {
+          package: 'payment',
+          protoPath: join(__dirname, '../../proto/payment.proto'),
+          url: 'localhost:50055',
+        },
+      },
     ]),
   ],
-  controllers: [CustomerController, AuthController, UserController, LoanController],
+  controllers: [CustomerController, AuthController, UserController, LoanController, PaymentController],
   providers: [
     AuthGuard,
     {
