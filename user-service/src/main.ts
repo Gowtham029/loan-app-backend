@@ -5,9 +5,6 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   try {
-    console.log('Starting User Service...');
-    console.log('Proto path:', join(__dirname, '../../proto/user.proto'));
-    
     const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
       transport: Transport.GRPC,
       options: {

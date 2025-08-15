@@ -8,32 +8,26 @@ import { ResponseHelper } from './helpers/response.helper';
 export class LoanService {
   constructor(private readonly loanRepository: LoanRepository) {}
 
-  async create(loanData: CreateLoanDto): Promise<any> {
+  async create(loanData: CreateLoanDto, loanProvider: any): Promise<any> {
     try {
       // Validate required fields
       if (!loanData.customer) {
         return ResponseHelper.error('Customer is required');
       }
-      if (!loanData.loanProvider) {
+      if (!loanProvider) {
         return ResponseHelper.error('LoanProvider is required');
       }
       
       // Validate business rules
-      if (loanData.interestRateType === 'PERCENTAGE' && !loanData.interestRate) {
-        return ResponseHelper.error('Interest rate is required for PERCENTAGE type');
-      }
-      if (loanData.interestRateType === 'PAISA' && !loanData.paisaRate) {
-        return ResponseHelper.error('Paisa rate is required for PAISA type');
-      }
       if (new Date(loanData.startDate) >= new Date(loanData.endDate)) {
         return ResponseHelper.error('End date must be after start date');
       }
       
-      const loan = await this.loanRepository.create(loanData);
+      const loan = await this.loanRepository.create(loanData, loanProvider);
       return {
         success: true,
-        loan: ResponseHelper.transformLoan(loan),
-        error: null
+        message: 'Loan created successfully',
+        data: ResponseHelper.transformLoan(loan)
       };
     } catch (error) {
       if (error.code === 11000) {
@@ -48,10 +42,6 @@ export class LoanService {
 
   async findById(loanId: string): Promise<any> {
     try {
-      if (!loanId) {
-        return ResponseHelper.error('Loan ID is required');
-      }
-
       const loan = await this.loanRepository.findById(loanId);
       if (!loan) {
         return ResponseHelper.error('Loan not found');
@@ -59,7 +49,7 @@ export class LoanService {
 
       return {
         success: true,
-        loan: ResponseHelper.transformLoan(loan),
+        data: ResponseHelper.transformLoan(loan),
         error: null
       };
     } catch (error) {
@@ -71,18 +61,6 @@ export class LoanService {
     try {
       const { loanId, ...updateFields } = updateData;
       
-      // Validate business rules for updates
-      if (updateFields.interestRateType === 'PERCENTAGE' && !updateFields.interestRate) {
-        return ResponseHelper.error('Interest rate is required for PERCENTAGE type');
-      }
-      if (updateFields.interestRateType === 'PAISA' && !updateFields.paisaRate) {
-        return ResponseHelper.error('Paisa rate is required for PAISA type');
-      }
-      if (updateFields.startDate && updateFields.endDate && 
-          new Date(updateFields.startDate) >= new Date(updateFields.endDate)) {
-        return ResponseHelper.error('End date must be after start date');
-      }
-      
       const loan = await this.loanRepository.update(loanId, updateFields);
       if (!loan) {
         return ResponseHelper.error('Loan not found');
@@ -90,7 +68,7 @@ export class LoanService {
 
       return {
         success: true,
-        loan: ResponseHelper.transformLoan(loan),
+        data: ResponseHelper.transformLoan(loan),
         error: null
       };
     } catch (error) {
@@ -103,10 +81,6 @@ export class LoanService {
 
   async delete(loanId: string): Promise<any> {
     try {
-      if (!loanId) {
-        return ResponseHelper.error('Loan ID is required');
-      }
-
       const deleted = await this.loanRepository.delete(loanId);
       if (!deleted) {
         return ResponseHelper.error('Loan not found');
@@ -124,15 +98,14 @@ export class LoanService {
 
   async findAll(queryData: ListLoansDto): Promise<any> {
     try {
-      const { page = 1, limit = 10, search, customerId, status } = queryData;
-      const result = await this.loanRepository.findAll(page, limit, search, customerId, status);
+      const result = await this.loanRepository.findAll(queryData);
       
       return {
         success: true,
         loans: result.loans.map(loan => ResponseHelper.transformLoan(loan)),
         total: result.total,
-        page,
-        limit,
+        page: queryData.page || 1,
+        limit: queryData.limit || 10,
         error: null
       };
     } catch (error) {

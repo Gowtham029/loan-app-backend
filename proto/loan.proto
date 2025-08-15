@@ -3,24 +3,55 @@ syntax = "proto3";
 package loan;
 
 service LoanService {
-  rpc CreateLoan (CreateLoanRequest) returns (LoanResponse);
-  rpc GetLoan (GetLoanRequest) returns (LoanResponse);
-  rpc UpdateLoan (UpdateLoanRequest) returns (LoanResponse);
-  rpc DeleteLoan (DeleteLoanRequest) returns (DeleteLoanResponse);
-  rpc ListLoans (ListLoansRequest) returns (ListLoansResponse);
-}
-
-message PaisaRate {
-  double ratePer100 = 1;
-  string frequency = 2;
+  rpc CreateLoan(CreateLoanRequest) returns (LoanResponse);
+  rpc GetLoan(GetLoanRequest) returns (LoanResponse);
+  rpc UpdateLoan(UpdateLoanRequest) returns (LoanResponse);
+  rpc DeleteLoan(DeleteLoanRequest) returns (DeleteLoanResponse);
+  rpc ListLoans(ListLoansRequest) returns (ListLoansResponse);
 }
 
 message Customer {
   string customerId = 1;
   string firstName = 2;
   string lastName = 3;
-  string email = 4;
+  optional string email = 4;
   string phoneNumber = 5;
+}
+
+message InterestRate {
+  double annualPercentage = 1;
+  double monthlyPercentage = 2;
+  int32 totalInterestRupees = 3;
+  int32 monthlyInterestRupees = 4;
+}
+
+message CompoundingDetails {
+  double penaltyInterestRate = 1;
+  double compoundedInterest = 2;
+  double principalPenalty = 3;
+  double totalPenaltyAmount = 4;
+}
+
+message LateFees {
+  int32 feePerMonth = 1;
+  int32 totalLateFees = 2;
+}
+
+message MissedPayments {
+  int32 count = 1;
+  int32 closed = 2;
+  int32 totalMissedAmount = 3;
+  CompoundingDetails compoundingDetails = 4;
+  LateFees lateFees = 5;
+}
+
+message CurrentOutstanding {
+  int32 remainingPrincipal = 1;
+  int32 pendingInterest = 2;
+  int32 penaltyAmount = 3;
+  int32 lateFees = 4;
+  int32 totalOutstanding = 5;
+  string lastCalculatedDate = 6;
 }
 
 message LoanProvider {
@@ -31,43 +62,48 @@ message LoanProvider {
   string email = 5;
 }
 
-message Document {
-  string documentType = 1;
-  string documentNumber = 2;
-  string documentUrl = 3;
+message Loan {
+  string loanId = 1;
+  Customer customer = 2;
+  int32 originalPrincipal = 3;
+  int32 currentPrincipal = 4;
+  InterestRate interestRate = 5;
+  int32 termMonths = 6;
+  int32 remainingTerms = 7;
+  string repaymentFrequency = 8;
+  string type = 9;
+  string startDate = 10;
+  string endDate = 11;
+  int32 expectedMonthlyPayment = 12;
+  MissedPayments missedPayments = 13;
+  CurrentOutstanding currentOutstanding = 14;
+  string status = 15;
+  string substatus = 16;
+  LoanProvider loanProvider = 17;
+  string createdAt = 18;
+  string updatedAt = 19;
 }
 
 message CreateLoanRequest {
   Customer customer = 1;
-  double principalAmount = 2;
-  string interestRateType = 3;
-  double interestRate = 4;
-  PaisaRate paisaRate = 5;
-  int32 loanTerm = 6;
-  string repaymentFrequency = 7;
-  string startDate = 8;
-  string endDate = 9;
-  string status = 10;
-  double balanceRemaining = 11;
-  LoanProvider loanProvider = 12;
-  repeated Document documents = 13;
+  int32 originalPrincipal = 2;
+  InterestRate interestRate = 3;
+  int32 termMonths = 4;
+  string repaymentFrequency = 5;
+  string type = 6;
+  string startDate = 7;
+  string endDate = 8;
+  LoanProvider loanProvider = 9;
 }
 
 message UpdateLoanRequest {
   string loanId = 1;
-  Customer customer = 2;
-  double principalAmount = 3;
-  string interestRateType = 4;
-  double interestRate = 5;
-  PaisaRate paisaRate = 6;
-  int32 loanTerm = 7;
-  string repaymentFrequency = 8;
-  string startDate = 9;
-  string endDate = 10;
-  string status = 11;
-  double balanceRemaining = 12;
-  LoanProvider updatedBy = 13;
-  repeated Document documents = 14;
+  optional int32 currentPrincipal = 2;
+  optional int32 remainingTerms = 3;
+  optional MissedPayments missedPayments = 4;
+  optional CurrentOutstanding currentOutstanding = 5;
+  optional string status = 6;
+  optional string substatus = 7;
 }
 
 message GetLoanRequest {
@@ -79,44 +115,27 @@ message DeleteLoanRequest {
 }
 
 message ListLoansRequest {
-  int32 page = 1;
-  int32 limit = 2;
-  string search = 3;
-  string customerId = 4;
-  string status = 5;
-}
-
-message Loan {
-  string id = 1;
-  string loanId = 2;
-  Customer customer = 3;
-  double principalAmount = 4;
-  string interestRateType = 5;
-  double interestRate = 6;
-  PaisaRate paisaRate = 7;
-  int32 loanTerm = 8;
-  string repaymentFrequency = 9;
-  string startDate = 10;
-  string endDate = 11;
-  string status = 12;
-  double balanceRemaining = 13;
-  LoanProvider loanProvider = 14;
-  LoanProvider updatedBy = 15;
-  repeated Document documents = 16;
-  string createdAt = 17;
-  string updatedAt = 18;
+  optional int32 page = 1;
+  optional int32 limit = 2;
+  optional string customerId = 3;
+  optional string status = 4;
+  optional string substatus = 5;
+  optional string search = 6;
+  optional string sortBy = 7;
+  optional string sortOrder = 8;
 }
 
 message LoanResponse {
   bool success = 1;
-  Loan loan = 2;
-  string error = 3;
+  optional string message = 2;
+  optional Loan data = 3;
+  optional string error = 4;
 }
 
 message DeleteLoanResponse {
   bool success = 1;
-  string message = 2;
-  string error = 3;
+  optional string message = 2;
+  optional string error = 3;
 }
 
 message ListLoansResponse {
@@ -125,5 +144,5 @@ message ListLoansResponse {
   int32 total = 3;
   int32 page = 4;
   int32 limit = 5;
-  string error = 6;
+  optional string error = 6;
 }

@@ -2,8 +2,44 @@ export interface ICustomer {
   customerId: string;
   firstName: string;
   lastName: string;
-  email: string;
+  email?: string;
   phoneNumber: string;
+}
+
+export interface IInterestRate {
+  annualPercentage: number;
+  monthlyPercentage: number;
+  totalInterestRupees: number;
+  monthlyInterestRupees: number;
+}
+
+export interface ICompoundingDetails {
+  penaltyInterestRate: number;
+  compoundedInterest: number;
+  principalPenalty: number;
+  totalPenaltyAmount: number;
+}
+
+export interface ILateFees {
+  feePerMonth: number;
+  totalLateFees: number;
+}
+
+export interface IMissedPayments {
+  count: number;
+  closed: number;
+  totalMissedAmount: number;
+  compoundingDetails: ICompoundingDetails;
+  lateFees: ILateFees;
+}
+
+export interface ICurrentOutstanding {
+  remainingPrincipal: number;
+  pendingInterest: number;
+  penaltyAmount: number;
+  lateFees: number;
+  totalOutstanding: number;
+  lastCalculatedDate: string;
 }
 
 export interface ILoanProvider {
@@ -14,32 +50,26 @@ export interface ILoanProvider {
   email: string;
 }
 
-export interface IDocument {
-  documentType: string;
-  documentNumber: string;
-  documentUrl: string;
-}
-
 export interface ILoan {
   id: string;
   loanId: string;
   customer: ICustomer;
-  principalAmount: number;
-  interestRateType: 'PERCENTAGE' | 'PAISA';
-  interestRate?: number;
-  paisaRate?: {
-    ratePer100: number;
-    frequency: 'DAILY' | 'WEEKLY' | 'MONTHLY';
-  };
-  loanTerm: number;
-  repaymentFrequency: 'DAILY' | 'WEEKLY' | 'MONTHLY';
+  originalPrincipal: number;
+  currentPrincipal: number;
+  interestRate: IInterestRate;
+  termMonths: number;
+  remainingTerms: number;
+  repaymentFrequency: 'WEEKLY' | 'MONTHLY' | 'QUARTERLY';
+  type: 'FIXED' | 'FLEXIBLE';
   startDate: string;
   endDate: string;
-  status: 'ACTIVE' | 'COMPLETED' | 'DEFAULTED' | 'CANCELLED';
-  balanceRemaining: number;
+  expectedMonthlyPayment: number;
+  missedPayments: IMissedPayments;
+  currentOutstanding: ICurrentOutstanding;
+  status: 'ACTIVE' | 'OVERDUE' | 'DEFAULTED' | 'PAID_OFF' | 'RESTRUCTURED';
+  substatus: 'CURRENT' | 'GRACE_PERIOD' | 'DELINQUENT';
   loanProvider: ILoanProvider;
-  updatedBy?: ILoanProvider;
-  documents: IDocument[];
+  isDeleted: boolean;
   createdAt: string;
   updatedAt: string;
 }
