@@ -25,10 +25,8 @@ export class UserController implements OnModuleInit {
   constructor(@Inject('USER_PACKAGE') private client: ClientGrpc) {}
 
   onModuleInit() {
-    console.log('Initializing User Controller...');
     try {
       this.userService = this.client.getService<UserService>('UserService');
-      console.log('User service client initialized successfully');
     } catch (error) {
       console.error('Failed to initialize user service client:', error);
     }
@@ -166,9 +164,7 @@ export class UserController implements OnModuleInit {
         limit: query.limit ? parseInt(query.limit as any, 10) : 10
       };
       
-      console.log('Calling user service ListUsers with transformed query:', transformedQuery);
       const result = await firstValueFrom(this.userService.ListUsers(transformedQuery)) as any;
-      console.log('User service response:', result);
       
       if (!result.success) {
         throw new HttpException(result.error, HttpStatus.BAD_REQUEST);

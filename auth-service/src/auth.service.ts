@@ -19,9 +19,7 @@ export class AuthService implements OnModuleInit {
   constructor(@Inject('USER_PACKAGE') private client: ClientGrpc) {}
 
   onModuleInit() {
-    console.log('Auth service initializing user service client...');
     this.userService = this.client.getService<UserService>('UserService');
-    console.log('User service client initialized in auth service');
   }
 
   async login(loginData: LoginDto): Promise<ILoginResponse> {
@@ -33,16 +31,12 @@ export class AuthService implements OnModuleInit {
       }
 
       // Get user from user service
-      console.log('Auth service calling user service GetUserByUsername:', { username });
       const userResponse = await firstValueFrom(this.userService.GetUserByUsername({ username })) as any;
-      console.log('User service response:', userResponse);
       if (!userResponse.success || !userResponse.user) {
         return { success: false, error: 'Invalid credentials' };
       }
-
+      
       const user = userResponse.user;
-
-
 
       // Check if user is active
       if (user.status !== 'active') {

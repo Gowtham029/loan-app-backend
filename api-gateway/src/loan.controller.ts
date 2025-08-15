@@ -1,8 +1,8 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query, HttpException, HttpStatus, Inject, UseGuards, OnModuleInit, Request } from '@nestjs/common';
+import { Controller, Get, Post, Put, Patch, Delete, Body, Param, Query, HttpException, HttpStatus, Inject, UseGuards, OnModuleInit, Request } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
 import { firstValueFrom } from 'rxjs';
-import { CreateLoanDto, UpdateLoanDto, ListLoansDto, LoanResponseDto, ListLoansResponseDto } from './dto/loan.dto';
+import { CreateLoanDto, UpdateLoanDto, ListLoansQueryDto, LoanResponseDto, ListLoansResponseDto } from './dto/loan.dto';
 import { AuthGuard } from './guards/auth.guard';
 import { RolesGuard } from './guards/roles.guard';
 import { Roles } from './decorators/roles.decorator';
@@ -72,9 +72,9 @@ export class LoanController implements OnModuleInit {
     try {
       const result = await firstValueFrom(this.loanService.GetLoan({ loanId: id })) as any;
       
-      if (!result.success) {
-        throw new HttpException(result.error, HttpStatus.NOT_FOUND);
-      }
+      // if (!result.success) {
+      //   throw new HttpException(result.error, HttpStatus.NOT_FOUND);
+      // }
 
       return result;
     } catch (error) {
@@ -82,7 +82,7 @@ export class LoanController implements OnModuleInit {
     }
   }
 
-  @Put(':id')
+  @Patch(':id')
   @Roles('admin', 'manager')
   @ApiOperation({ summary: 'Update loan by ID' })
   @ApiParam({ name: 'id', description: 'Loan ID' })
@@ -145,10 +145,13 @@ export class LoanController implements OnModuleInit {
   @ApiQuery({ name: 'search', required: false, description: 'Search term' })
   @ApiQuery({ name: 'customerId', required: false, description: 'Filter by customer ID' })
   @ApiQuery({ name: 'status', required: false, description: 'Filter by status' })
+  @ApiQuery({ name: 'substatus', required: false, description: 'Filter by substatus' })
+  @ApiQuery({ name: 'sortBy', required: false, description: 'Sort by field' })
+  @ApiQuery({ name: 'sortOrder', required: false, description: 'Sort order' })
   @ApiResponse({ status: 200, description: 'Loans retrieved successfully', type: ListLoansResponseDto })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async listLoans(@Query() query: ListLoansDto) {
+  async listLoans(@Query() query: ListLoansQueryDto) {
     try {
       const transformedQuery = {
         ...query,

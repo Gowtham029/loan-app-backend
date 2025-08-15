@@ -1,306 +1,318 @@
-import { IsString, IsNumber, IsEnum, IsOptional, IsObject, ValidateNested, IsDateString, Min, IsArray } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsString, IsNumber, IsEnum, IsOptional, ValidateNested, IsDateString, Min } from 'class-validator';
 import { Type } from 'class-transformer';
-import { ApiProperty } from '@nestjs/swagger';
-
-class PaisaRateDto {
-  @ApiProperty({ example: 1.5, description: 'Rate per 100 rupees' })
-  @IsNumber()
-  @Min(0)
-  ratePer100: number;
-
-  @ApiProperty({ example: 'MONTHLY', enum: ['DAILY', 'WEEKLY', 'MONTHLY'], description: 'Frequency of paisa rate' })
-  @IsEnum(['DAILY', 'WEEKLY', 'MONTHLY'])
-  frequency: 'DAILY' | 'WEEKLY' | 'MONTHLY';
-}
 
 class CustomerDto {
-  @ApiProperty({ example: 'CUS987654321', description: 'Customer ID' })
+  @ApiProperty({ example: 'CUS987654321' })
   @IsString()
   customerId: string;
 
-  @ApiProperty({ example: 'John', description: 'Customer first name' })
+  @ApiProperty({ example: 'John' })
   @IsString()
   firstName: string;
 
-  @ApiProperty({ example: 'Doe', description: 'Customer last name' })
+  @ApiProperty({ example: 'Doe' })
   @IsString()
   lastName: string;
 
-  @ApiProperty({ example: 'john.doe@example.com', description: 'Customer email' })
+  @ApiPropertyOptional({ example: 'john.doe@example.com' })
+  @IsOptional()
   @IsString()
-  email: string;
+  email?: string;
 
-  @ApiProperty({ example: '+1234567890', description: 'Customer phone number' })
+  @ApiProperty({ example: '+1234567890' })
   @IsString()
   phoneNumber: string;
 }
 
+class SimpleInterestRateDto {
+  @ApiProperty({ example: 18.0 })
+  @IsNumber()
+  @Min(0)
+  annualPercentage: number;
+
+  @ApiProperty({ example: 1.5 })
+  @IsNumber()
+  @Min(0)
+  monthlyPercentage: number;
+}
+
+class FullInterestRateDto extends SimpleInterestRateDto {
+  @ApiProperty({ example: 2700 })
+  totalInterestRupees: number;
+
+  @ApiProperty({ example: 225 })
+  monthlyInterestRupees: number;
+}
+
+class CompoundingDetailsDto {
+  @ApiProperty({ example: 2.5 })
+  penaltyInterestRate: number;
+
+  @ApiProperty({ example: 147.5 })
+  compoundedInterest: number;
+
+  @ApiProperty({ example: 312.5 })
+  principalPenalty: number;
+
+  @ApiProperty({ example: 460 })
+  totalPenaltyAmount: number;
+}
+
+class LateFeesDto {
+  @ApiProperty({ example: 500 })
+  feePerMonth: number;
+
+  @ApiProperty({ example: 500 })
+  totalLateFees: number;
+}
+
+class MissedPaymentsDto {
+  @ApiProperty({ example: 1 })
+  count: number;
+
+  @ApiProperty({ example: 1 })
+  closed: number;
+
+  @ApiProperty({ example: 1475 })
+  totalMissedAmount: number;
+
+  @ApiProperty({ type: CompoundingDetailsDto })
+  compoundingDetails: CompoundingDetailsDto;
+
+  @ApiProperty({ type: LateFeesDto })
+  lateFees: LateFeesDto;
+}
+
+class CurrentOutstandingDto {
+  @ApiProperty({ example: 12500 })
+  remainingPrincipal: number;
+
+  @ApiProperty({ example: 225 })
+  pendingInterest: number;
+
+  @ApiProperty({ example: 460 })
+  penaltyAmount: number;
+
+  @ApiProperty({ example: 500 })
+  lateFees: number;
+
+  @ApiProperty({ example: 13685 })
+  totalOutstanding: number;
+
+  @ApiProperty({ example: '2025-10-06T00:00:00.000Z' })
+  lastCalculatedDate: string;
+}
+
 class LoanProviderDto {
-  @ApiProperty({ example: 'USR123', description: 'User ID' })
-  @IsString()
+  @ApiProperty({ example: 'USR123' })
   userId: string;
 
-  @ApiProperty({ example: 'admin', description: 'Username' })
-  @IsString()
+  @ApiProperty({ example: 'admin' })
   username: string;
 
-  @ApiProperty({ example: 'Admin', description: 'First name' })
-  @IsString()
+  @ApiProperty({ example: 'Admin' })
   firstName: string;
 
-  @ApiProperty({ example: 'User', description: 'Last name' })
-  @IsString()
+  @ApiProperty({ example: 'User' })
   lastName: string;
 
-  @ApiProperty({ example: 'admin@example.com', description: 'Email' })
-  @IsString()
+  @ApiProperty({ example: 'admin@example.com' })
   email: string;
 }
 
-class DocumentDto {
-  @ApiProperty({ example: 'Aadhaar', description: 'Document type' })
-  @IsString()
-  documentType: string;
-
-  @ApiProperty({ example: '123456789012', description: 'Document number' })
-  @IsString()
-  documentNumber: string;
-
-  @ApiProperty({ example: 'https://example.com/uploads/identity-docs/CUST123456_aadhaar.pdf', description: 'Document URL' })
-  @IsString()
-  documentUrl: string;
-}
-
 export class CreateLoanDto {
-  @ApiProperty({ type: CustomerDto, description: 'Customer details' })
-  @IsObject({ message: 'Customer must be an object' })
-  @ValidateNested({ message: 'Customer validation failed' })
+  @ApiProperty({ type: CustomerDto })
+  @ValidateNested()
   @Type(() => CustomerDto)
   customer: CustomerDto;
 
-  @ApiProperty({ example: 50000, description: 'Principal loan amount' })
-  @IsNumber()
-  @Min(0)
-  principalAmount: number;
-
-  @ApiProperty({ example: 'PERCENTAGE', enum: ['PERCENTAGE', 'PAISA'], description: 'Interest rate type' })
-  @IsEnum(['PERCENTAGE', 'PAISA'])
-  interestRateType: 'PERCENTAGE' | 'PAISA';
-
-  @ApiProperty({ example: 18.0, required: false, description: 'Annual interest rate percentage' })
-  @IsOptional()
-  @IsNumber()
-  @Min(0)
-  interestRate?: number;
-
-  @ApiProperty({ type: PaisaRateDto, required: false, description: 'Paisa rate details' })
-  @IsOptional()
-  @IsObject()
-  @ValidateNested()
-  @Type(() => PaisaRateDto)
-  paisaRate?: PaisaRateDto;
-
-  @ApiProperty({ example: 12, description: 'Loan term in months' })
+  @ApiProperty({ example: 15000 })
   @IsNumber()
   @Min(1)
-  loanTerm: number;
+  originalPrincipal: number;
 
-  @ApiProperty({ example: 'MONTHLY', enum: ['DAILY', 'WEEKLY', 'MONTHLY'], description: 'Repayment frequency' })
-  @IsEnum(['DAILY', 'WEEKLY', 'MONTHLY'])
-  repaymentFrequency: 'DAILY' | 'WEEKLY' | 'MONTHLY';
+  @ApiProperty({ type: SimpleInterestRateDto })
+  @ValidateNested()
+  @Type(() => SimpleInterestRateDto)
+  interestRate: SimpleInterestRateDto;
 
-  @ApiProperty({ example: '2024-06-01', description: 'Loan start date' })
+  @ApiProperty({ example: 12 })
+  @IsNumber()
+  @Min(1)
+  termMonths: number;
+
+  @ApiProperty({ example: 'MONTHLY', enum: ['WEEKLY', 'MONTHLY', 'QUARTERLY'] })
+  @IsEnum(['WEEKLY', 'MONTHLY', 'QUARTERLY'])
+  repaymentFrequency: string;
+
+  @ApiProperty({ example: 'FLEXIBLE', enum: ['FIXED', 'FLEXIBLE'] })
+  @IsEnum(['FIXED', 'FLEXIBLE'])
+  type: string;
+
+  @ApiProperty({ example: '2025-08-01T00:00:00.000Z' })
   @IsDateString()
   startDate: string;
 
-  @ApiProperty({ example: '2025-05-31', description: 'Loan end date' })
+  @ApiProperty({ example: '2026-07-01T00:00:00.000Z' })
   @IsDateString()
   endDate: string;
-
-  @ApiProperty({ example: 'ACTIVE', enum: ['ACTIVE', 'COMPLETED', 'DEFAULTED', 'CANCELLED'], required: false, description: 'Loan status' })
-  @IsOptional()
-  @IsEnum(['ACTIVE', 'COMPLETED', 'DEFAULTED', 'CANCELLED'])
-  status?: 'ACTIVE' | 'COMPLETED' | 'DEFAULTED' | 'CANCELLED';
-
-  @ApiProperty({ example: 30000, required: false, description: 'Remaining balance' })
-  @IsOptional()
-  @IsNumber()
-  @Min(0)
-  balanceRemaining?: number;
 }
 
 export class UpdateLoanDto {
-  @ApiProperty({ type: CustomerDto, required: false, description: 'Updated customer details' })
+  @ApiPropertyOptional({ example: 12500 })
   @IsOptional()
-  @IsObject()
+  @IsNumber()
+  @Min(0)
+  currentPrincipal?: number;
+
+  @ApiPropertyOptional({ example: 10 })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  remainingTerms?: number;
+
+  @ApiPropertyOptional({ type: MissedPaymentsDto })
+  @IsOptional()
   @ValidateNested()
-  @Type(() => CustomerDto)
-  customer?: CustomerDto;
-  @ApiProperty({ example: 60000, required: false, description: 'Updated principal amount' })
-  @IsOptional()
-  @IsNumber()
-  @Min(0)
-  principalAmount?: number;
+  @Type(() => MissedPaymentsDto)
+  missedPayments?: MissedPaymentsDto;
 
-  @ApiProperty({ example: 'PAISA', enum: ['PERCENTAGE', 'PAISA'], required: false, description: 'Updated interest rate type' })
+  @ApiPropertyOptional({ type: CurrentOutstandingDto })
   @IsOptional()
-  @IsEnum(['PERCENTAGE', 'PAISA'])
-  interestRateType?: 'PERCENTAGE' | 'PAISA';
-
-  @ApiProperty({ example: 20.0, required: false, description: 'Updated interest rate' })
-  @IsOptional()
-  @IsNumber()
-  @Min(0)
-  interestRate?: number;
-
-  @ApiProperty({ type: PaisaRateDto, required: false, description: 'Updated paisa rate' })
-  @IsOptional()
-  @IsObject()
   @ValidateNested()
-  @Type(() => PaisaRateDto)
-  paisaRate?: PaisaRateDto;
+  @Type(() => CurrentOutstandingDto)
+  currentOutstanding?: CurrentOutstandingDto;
 
-  @ApiProperty({ example: 18, required: false, description: 'Updated loan term' })
+  @ApiPropertyOptional({ example: 'OVERDUE', enum: ['ACTIVE', 'OVERDUE', 'DEFAULTED', 'PAID_OFF', 'RESTRUCTURED'] })
   @IsOptional()
-  @IsNumber()
-  @Min(1)
-  loanTerm?: number;
+  @IsEnum(['ACTIVE', 'OVERDUE', 'DEFAULTED', 'PAID_OFF', 'RESTRUCTURED'])
+  status?: string;
 
-  @ApiProperty({ example: 'WEEKLY', enum: ['DAILY', 'WEEKLY', 'MONTHLY'], required: false, description: 'Updated repayment frequency' })
+  @ApiPropertyOptional({ example: 'DELINQUENT', enum: ['CURRENT', 'GRACE_PERIOD', 'DELINQUENT'] })
   @IsOptional()
-  @IsEnum(['DAILY', 'WEEKLY', 'MONTHLY'])
-  repaymentFrequency?: 'DAILY' | 'WEEKLY' | 'MONTHLY';
-
-  @ApiProperty({ example: '2024-07-01', required: false, description: 'Updated start date' })
-  @IsOptional()
-  @IsDateString()
-  startDate?: string;
-
-  @ApiProperty({ example: '2025-12-31', required: false, description: 'Updated end date' })
-  @IsOptional()
-  @IsDateString()
-  endDate?: string;
-
-  @ApiProperty({ example: 'COMPLETED', enum: ['ACTIVE', 'COMPLETED', 'DEFAULTED', 'CANCELLED'], required: false, description: 'Updated status' })
-  @IsOptional()
-  @IsEnum(['ACTIVE', 'COMPLETED', 'DEFAULTED', 'CANCELLED'])
-  status?: 'ACTIVE' | 'COMPLETED' | 'DEFAULTED' | 'CANCELLED';
-
-  @ApiProperty({ example: 25000, required: false, description: 'Updated balance remaining' })
-  @IsOptional()
-  @IsNumber()
-  @Min(0)
-  balanceRemaining?: number;
-
-  @ApiProperty({ type: [DocumentDto], required: false, description: 'Loan documents' })
-  @IsOptional()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => DocumentDto)
-  documents?: DocumentDto[];
+  @IsEnum(['CURRENT', 'GRACE_PERIOD', 'DELINQUENT'])
+  substatus?: string;
 }
 
-export { CustomerDto, LoanProviderDto, DocumentDto, PaisaRateDto };
+export class LoanResponseDto {
+  @ApiProperty({ example: 'LN1754023242749111' })
+  loanId: string;
 
-export class ListLoansDto {
-  @ApiProperty({ example: 1, required: false, description: 'Page number' })
+  @ApiProperty({ type: CustomerDto })
+  customer: CustomerDto;
+
+  @ApiProperty({ example: 15000 })
+  originalPrincipal: number;
+
+  @ApiProperty({ example: 12500 })
+  currentPrincipal: number;
+
+  @ApiProperty({ type: FullInterestRateDto })
+  interestRate: FullInterestRateDto;
+
+  @ApiProperty({ example: 12 })
+  termMonths: number;
+
+  @ApiProperty({ example: 10 })
+  remainingTerms: number;
+
+  @ApiProperty({ example: 'MONTHLY' })
+  repaymentFrequency: string;
+
+  @ApiProperty({ example: 'FLEXIBLE' })
+  type: string;
+
+  @ApiProperty({ example: '2025-08-01T00:00:00.000Z' })
+  startDate: string;
+
+  @ApiProperty({ example: '2026-07-01T00:00:00.000Z' })
+  endDate: string;
+
+  @ApiProperty({ example: 1475 })
+  expectedMonthlyPayment: number;
+
+  @ApiProperty({ type: MissedPaymentsDto })
+  missedPayments: MissedPaymentsDto;
+
+  @ApiProperty({ type: CurrentOutstandingDto })
+  currentOutstanding: CurrentOutstandingDto;
+
+  @ApiProperty({ example: 'ACTIVE' })
+  status: string;
+
+  @ApiProperty({ example: 'CURRENT' })
+  substatus: string;
+
+  @ApiProperty({ type: LoanProviderDto })
+  loanProvider: LoanProviderDto;
+
+  @ApiProperty({ example: '2025-08-01T00:00:00.000Z' })
+  createdAt: string;
+
+  @ApiProperty({ example: '2025-08-01T00:00:00.000Z' })
+  updatedAt: string;
+}
+
+export class ListLoansQueryDto {
+  @ApiPropertyOptional({ default: 1, minimum: 1 })
   @IsOptional()
-  page?: number | string = 1;
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1)
+  page?: number = 1;
 
-  @ApiProperty({ example: 10, required: false, description: 'Items per page' })
+  @ApiPropertyOptional({ default: 10, minimum: 1, maximum: 100 })
   @IsOptional()
-  limit?: number | string = 10;
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1)
+  limit?: number = 10;
 
-  @ApiProperty({ example: 'LN123', required: false, description: 'Search term' })
-  @IsOptional()
-  @IsString()
-  search?: string;
-
-  @ApiProperty({ example: 'CUS987654321', required: false, description: 'Filter by customer ID' })
+  @ApiPropertyOptional({ example: 'CUS987654321' })
   @IsOptional()
   @IsString()
   customerId?: string;
 
-  @ApiProperty({ example: 'John Doe', required: false, description: 'Filter by customer name' })
+  @ApiPropertyOptional({ example: 'ACTIVE', enum: ['ACTIVE', 'OVERDUE', 'DEFAULTED', 'PAID_OFF', 'RESTRUCTURED'] })
+  @IsOptional()
+  @IsEnum(['ACTIVE', 'OVERDUE', 'DEFAULTED', 'PAID_OFF', 'RESTRUCTURED'])
+  status?: string;
+
+  @ApiPropertyOptional({ example: 'CURRENT', enum: ['CURRENT', 'GRACE_PERIOD', 'DELINQUENT'] })
+  @IsOptional()
+  @IsEnum(['CURRENT', 'GRACE_PERIOD', 'DELINQUENT'])
+  substatus?: string;
+
+  @ApiPropertyOptional({ example: 'John' })
   @IsOptional()
   @IsString()
-  customerName?: string;
+  search?: string;
 
-  @ApiProperty({ example: 'ACTIVE', enum: ['ACTIVE', 'COMPLETED', 'DEFAULTED', 'CANCELLED'], required: false, description: 'Filter by status' })
+  @ApiPropertyOptional({ example: 'createdAt', enum: ['createdAt', 'originalPrincipal', 'status'] })
   @IsOptional()
-  @IsEnum(['ACTIVE', 'COMPLETED', 'DEFAULTED', 'CANCELLED'])
-  status?: string;
-}
+  @IsString()
+  sortBy?: string;
 
-export class LoanResponseDto {
-  @ApiProperty({ example: '64f1a2b3c4d5e6f7g8h9i0j1', description: 'Loan ID' })
-  id: string;
-
-  @ApiProperty({ example: 'LN17234567890123', description: 'Generated loan ID' })
-  loanId: string;
-
-  @ApiProperty({ type: CustomerDto, description: 'Customer details' })
-  customer: CustomerDto;
-
-  @ApiProperty({ example: 50000, description: 'Principal amount' })
-  principalAmount: number;
-
-  @ApiProperty({ example: 'PERCENTAGE', enum: ['PERCENTAGE', 'PAISA'], description: 'Interest rate type' })
-  interestRateType: string;
-
-  @ApiProperty({ example: 18.0, required: false, description: 'Interest rate percentage' })
-  interestRate?: number;
-
-  @ApiProperty({ example: { ratePer100: 1.5, frequency: 'MONTHLY' }, required: false, description: 'Paisa rate details' })
-  paisaRate?: object;
-
-  @ApiProperty({ example: 12, description: 'Loan term in months' })
-  loanTerm: number;
-
-  @ApiProperty({ example: 'MONTHLY', description: 'Repayment frequency' })
-  repaymentFrequency: string;
-
-  @ApiProperty({ example: '2024-06-01T00:00:00.000Z', description: 'Start date' })
-  startDate: string;
-
-  @ApiProperty({ example: '2025-05-31T00:00:00.000Z', description: 'End date' })
-  endDate: string;
-
-  @ApiProperty({ example: 'ACTIVE', description: 'Loan status' })
-  status: string;
-
-  @ApiProperty({ example: 30000, description: 'Balance remaining' })
-  balanceRemaining: number;
-
-  @ApiProperty({ type: LoanProviderDto, description: 'Loan provider details' })
-  loanProvider: LoanProviderDto;
-
-  @ApiProperty({ type: LoanProviderDto, required: false, description: 'Updated by user details' })
-  updatedBy?: LoanProviderDto;
-
-  @ApiProperty({ type: [DocumentDto], description: 'Loan documents' })
-  documents: DocumentDto[];
-
-  @ApiProperty({ example: '2024-06-01T00:00:00.000Z', description: 'Creation timestamp' })
-  createdAt: string;
-
-  @ApiProperty({ example: '2024-07-01T00:00:00.000Z', description: 'Update timestamp' })
-  updatedAt: string;
+  @ApiPropertyOptional({ example: 'desc', enum: ['asc', 'desc'] })
+  @IsOptional()
+  @IsEnum(['asc', 'desc'])
+  sortOrder?: string;
 }
 
 export class ListLoansResponseDto {
-  @ApiProperty({ example: true, description: 'Success status' })
+  @ApiProperty({ example: true })
   success: boolean;
 
-  @ApiProperty({ type: [LoanResponseDto], description: 'Array of loans' })
+  @ApiProperty({ type: [LoanResponseDto] })
   loans: LoanResponseDto[];
 
-  @ApiProperty({ example: 25, description: 'Total number of loans' })
+  @ApiProperty({ example: 25 })
   total: number;
 
-  @ApiProperty({ example: 1, description: 'Current page number' })
+  @ApiProperty({ example: 1 })
   page: number;
 
-  @ApiProperty({ example: 10, description: 'Items per page' })
+  @ApiProperty({ example: 10 })
   limit: number;
 }

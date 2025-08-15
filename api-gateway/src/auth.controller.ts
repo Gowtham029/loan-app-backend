@@ -18,10 +18,8 @@ export class AuthController implements OnModuleInit {
   constructor(@Inject('AUTH_PACKAGE') private client: ClientGrpc) {}
 
   onModuleInit() {
-    console.log('Initializing Auth Controller...');
     try {
       this.authService = this.client.getService<AuthService>('AuthService');
-      console.log('Auth service client initialized successfully');
     } catch (error) {
       console.error('Failed to initialize auth service client:', error);
     }
@@ -33,16 +31,13 @@ export class AuthController implements OnModuleInit {
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
   @ApiResponse({ status: 400, description: 'Validation error' })
   async login(@Body() loginDto: LoginDto) {
-    console.log('Login request received:', loginDto);
     try {
       if (!this.authService) {
         console.error('Auth service not initialized');
         throw new HttpException('Auth service unavailable', HttpStatus.SERVICE_UNAVAILABLE);
       }
       
-      console.log('Calling auth service...', loginDto);
       const result = await firstValueFrom(this.authService.Login(loginDto)) as any;
-      console.log('Auth service response:', result);
       if (!result.success) {
         throw new HttpException("Invalid username or password", HttpStatus.UNAUTHORIZED);
       }
